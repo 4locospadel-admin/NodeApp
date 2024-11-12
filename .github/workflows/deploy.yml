@@ -1,0 +1,40 @@
+name: Deploy to Azure Web App
+
+on:
+  push:
+    branches:
+      - master  # Trigger on push to master
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install dependencies and build React app
+        working-directory: frontend
+        run: |
+          npm install
+          npm run build
+
+      - name: Copy React build files to backend
+        run: |
+          rm -rf backend/build
+          cp -r frontend/build backend/build
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm install
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'my-node-react-app'  # Azure App Service name
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
