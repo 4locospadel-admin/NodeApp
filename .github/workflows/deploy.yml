@@ -3,7 +3,7 @@ name: Deploy to Azure Web App
 on:
   push:
     branches:
-      - master  # Trigger on push to master
+      - main 
 
 jobs:
   build_and_deploy:
