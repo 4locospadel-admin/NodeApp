@@ -31,7 +31,9 @@ jobs:
 
       - name: Install Backend Dependencies
         working-directory: backend
-        run: npm install
+        run: 
+          npm install
+          node server.js
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
