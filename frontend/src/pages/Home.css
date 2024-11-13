@@ -1,0 +1,43 @@
+/* Ensure the body takes the full height of the viewport */
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* Center the home container horizontally */
+.home {
+    display: flex;
+    justify-content: center; /* Centers content horizontally */
+    padding-top: 50px; /* Adjust this value to position content vertically */
+}
+
+/* Center the button container and align items */
+.home-button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Style for the buttons */
+.home-button {
+    padding: 10px 20px;
+    background-color: #E7FF7D;
+    color: #323F5E;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    width: 200px;
+    transition: background-color 0.3s;
+}
+
+.home-button:hover {
+    background-color: #c4e66b;
+}
+
+/* Style for the logo */
+.logo {
+    width: 150px;
+    margin-bottom: 20px;
+}
