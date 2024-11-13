@@ -31,13 +31,16 @@ jobs:
 
       - name: Install Backend Dependencies
         working-directory: backend
-        run: 
-          npm install
-          node server.js
+        run: npm install
+
+      - name: Zip Backend for Deployment
+        run: |
+          cd backend
+          zip -r ../backend.zip .
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
           app-name: '4locospadel'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: backend
+          package: backend.zip
