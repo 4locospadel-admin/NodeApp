@@ -1,9 +1,9 @@
-name: Deploy to Azure Web App
+name: Deploy Node.js + React App to Azure
 
 on:
   push:
     branches:
-      - main 
+      - main
 
 jobs:
   build_and_deploy:
@@ -18,18 +18,18 @@ jobs:
         with:
           node-version: '16'
 
-      - name: Install dependencies and build React app
+      - name: Install and Build React App
         working-directory: frontend
         run: |
           npm install
           npm run build
 
-      - name: Copy React build files to backend
+      - name: Move React Build to Backend
         run: |
           rm -rf backend/build
           cp -r frontend/build backend/build
 
-      - name: Install backend dependencies
+      - name: Install Backend Dependencies
         working-directory: backend
         run: npm install
 
@@ -38,3 +38,4 @@ jobs:
         with:
           app-name: '4locospadel'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: backend
