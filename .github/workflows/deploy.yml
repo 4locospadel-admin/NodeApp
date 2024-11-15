@@ -18,6 +18,10 @@ jobs:
         with:
           node-version: '16'
 
+      - name: Setup .env
+        run: |
+            npm install dotenv
+
       - name: Install and Build React App
         working-directory: frontend
         run: |
