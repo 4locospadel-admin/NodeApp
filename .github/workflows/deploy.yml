@@ -35,8 +35,7 @@ jobs:
 
       - name: Zip Backend for Deployment
         run: |
-          cd backend
-          zip -r ../backend.zip .
+          zip -r app.zip ./backend
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
