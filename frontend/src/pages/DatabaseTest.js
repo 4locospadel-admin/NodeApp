@@ -1,37 +1,97 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import './DatabaseTest.css';
 
 function DatabaseTest() {
-  // State to manage the visibility of the form
   const [showForm, setShowForm] = useState(false);
-  // State to manage form inputs
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  // State to manage the list of users
   const [users, setUsers] = useState([]);
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [editingUser, setEditingUser] = useState({ id: null, name: "", email: "" });
 
-  // Function to handle saving a new user
+  // Fetch users from the backend API
+  useEffect(() => {
+    fetch('/users')
+      .then(response => response.json())
+      .then(data => setUsers(data))
+      .catch(error => console.error('Error fetching users:', error));
+  }, []);
+
   const handleSave = () => {
     if (name && email) {
-      // Create a new user object and add it to the list
       const newUser = { name, email };
-      setUsers([...users, newUser]);
-
-      // Clear the form fields
-      setName("");
-      setEmail("");
+      fetch('/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newUser),
+      })
+        .then(response => response.json())
+        .then(data => {
+          setUsers([...users, data]);
+          setName("");
+          setEmail("");
+          setShowForm(false);
+        })
+        .catch(error => console.error('Error creating user:', error));
+    } else {
+      alert("Please enter both name and email.");
     }
+  };
+
+  const handleEdit = (index) => {
+    setEditingIndex(index);
+    setEditingUser(users[index]);
+  };
+
+  const handleUpdate = () => {
+    const { id, name, email } = editingUser;
+    if (name && email) {
+      fetch(`/users/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email }),
+      })
+        .then(response => {
+          if (response.ok) {
+            const updatedUsers = users.map(user =>
+              user.id === id ? { ...user, name, email } : user
+            );
+            setUsers(updatedUsers);
+            setEditingIndex(null);
+            setEditingUser({ id: null, name: "", email: "" });
+          } else {
+            alert('Error updating user.');
+          }
+        })
+        .catch(error => console.error('Error updating user:', error));
+    } else {
+      alert("Please enter both name and email.");
+    }
+  };
+
+  const handleDelete = (id) => {
+    fetch(`/users/${id}`, { method: 'DELETE' })
+      .then(response => {
+        if (response.ok) {
+          const updatedUsers = users.filter(user => user.id !== id);
+          setUsers(updatedUsers);
+        } else {
+          alert('Error deleting user.');
+        }
+      })
+      .catch(error => console.error('Error deleting user:', error));
+  };
+
+  const handleInputChange = (field, value) => {
+    setEditingUser({ ...editingUser, [field]: value });
   };
 
   return (
     <div className="page">
       <h2>Database Test Page</h2>
-
-      {/* Button to toggle the form */}
       <button onClick={() => setShowForm(!showForm)}>
         {showForm ? "Close" : "Create User"}
       </button>
-
-      {/* Conditional rendering for the form */}
       {showForm && (
         <div className="form">
           <input
@@ -50,18 +110,58 @@ function DatabaseTest() {
           <button onClick={() => setShowForm(false)}>Close</button>
         </div>
       )}
-
-      {/* Display the list of users */}
       <div className="user-list">
         <h3>User List</h3>
         {users.length > 0 ? (
-          <ul>
-            {users.map((user, index) => (
-              <li key={index}>
-                {user.name} - {user.email}
-              </li>
-            ))}
-          </ul>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((user, index) => (
+                <tr key={user.id}>
+                  <td>{user.id}</td>
+                  <td>
+                    {editingIndex === index ? (
+                      <input
+                        type="text"
+                        value={editingUser.name}
+                        onChange={(e) => handleInputChange("name", e.target.value)}
+                      />
+                    ) : (
+                      user.name
+                    )}
+                  </td>
+                  <td>
+                    {editingIndex === index ? (
+                      <input
+                        type="email"
+                        value={editingUser.email}
+                        onChange={(e) => handleInputChange("email", e.target.value)}
+                      />
+                    ) : (
+                      user.email
+                    )}
+                  </td>
+                  <td>
+                    {editingIndex === index ? (
+                      <button onClick={handleUpdate}>Save</button>
+                    ) : (
+                      <>
+                        <button onClick={() => handleEdit(index)}>Edit</button>
+                        <button onClick={() => handleDelete(user.id)}>Delete</button>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         ) : (
           <p>No users yet</p>
         )}
