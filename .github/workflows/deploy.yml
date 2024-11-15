@@ -22,16 +22,25 @@ jobs:
         run: |
             npm install dotenv
 
-      - name: Install and Build React App
+      - name: Install React App
         working-directory: frontend
         run: |
           npm install
           npm run build
 
-      - name: Move React Build to Backend
+      - name: Build React App
+        working-directory: frontend
+        run: |
+          npm run build
+
+      - name: Delete React Build from Backend
         run: |
           rm -rf backend/build
+
+      - name: Move React Build to Backend
+        run: |
           cp -r frontend/build backend/build
+
 
       - name: Install Backend Dependencies
         working-directory: backend
