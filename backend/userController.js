@@ -16,7 +16,7 @@ router.post('/users', async (req, res) => {
             .input('Name', sql.NVarChar, name)
             .input('Email', sql.NVarChar, email)
             .query('INSERT INTO Users (Name, Email) VALUES (@Name, @Email); SELECT SCOPE_IDENTITY() AS Id;');
-        res.status(201).json({ id: result.recordset[0].Id, name, email });
+        res.status(201).json({ Id: result.recordset[0].Id, Name: name, Email: email });
     } catch (err) {
         console.error('Error creating user:', err);
         res.status(500).json({ message: 'Internal server error.' });
@@ -36,9 +36,10 @@ router.get('/users', async (req, res) => {
 });
 
 // Update an existing user
-router.put('/users/:id', async (req, res) => {
-    const { id } = req.params;
+router.put('/users/:Id', async (req, res) => {
+    const { Id } = req.params;
     const { name, email } = req.body;
+    console.log("req body: ", JSON.stringify(req.body, null, 2), "id: ", req.params)
 
     if (!name || !email) {
         return res.status(400).json({ message: 'Name and email are required.' });
@@ -47,7 +48,7 @@ router.put('/users/:id', async (req, res) => {
     try {
         const pool = await connectToDatabase();
         const result = await pool.request()
-            .input('Id', sql.Int, id)
+            .input('Id', sql.Int, Id)
             .input('Name', sql.NVarChar, name)
             .input('Email', sql.NVarChar, email)
             .query('UPDATE Users SET Name = @Name, Email = @Email WHERE Id = @Id;');
@@ -64,13 +65,13 @@ router.put('/users/:id', async (req, res) => {
 });
 
 // Delete a user
-router.delete('/users/:id', async (req, res) => {
-    const { id } = req.params;
+router.delete('/users/:Id', async (req, res) => {
+    const { Id } = req.params;
 
     try {
         const pool = await connectToDatabase();
         const result = await pool.request()
-            .input('Id', sql.Int, id)
+            .input('Id', sql.Int, Id)
             .query('DELETE FROM Users WHERE Id = @Id;');
 
         if (result.rowsAffected[0] === 0) {
@@ -85,13 +86,13 @@ router.delete('/users/:id', async (req, res) => {
 });
 
 // Retrieve a single user by Id
-router.get('/users/:id', async (req, res) => {
-    const { id } = req.params;
+router.get('/users/:Id', async (req, res) => {
+    const { Id } = req.params;
 
     try {
         const pool = await connectToDatabase();
         const result = await pool.request()
-            .input('Id', sql.Int, id)
+            .input('Id', sql.Int, Id)
             .query('SELECT * FROM Users WHERE Id = @Id;');
 
         if (result.recordset.length === 0) {

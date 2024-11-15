@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const { connectToDatabase } = require('./dbConnection');
 const userController = require('./userController');
+const inquiryController = require('./inquiryController');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -14,6 +15,7 @@ app.use(express.static(path.join(__dirname, 'build')));
 
 // API routes
 app.use('/api', userController);
+app.use('/api', inquiryController);
 
 // Handle any requests that don’t match the API routes by serving index.html
 app.get('*', (req, res) => {

@@ -38,3 +38,34 @@ form {
   li {
     margin-bottom: 10px;
   }
+
+  .contact-page {
+    padding: 20px;
+    background-color: #323F5E;
+    color: #E7FF7D;
+  }
+  
+  .inquiry-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .inquiry-table th, .inquiry-table td {
+    border: 1px solid #E7FF7D;
+    padding: 10px;
+    text-align: left;
+  }
+  
+  .inquiry-table th {
+    background-color: #2C3E50;
+    font-weight: bold;
+  }
+  
+  .inquiry-table tr:nth-child(even) {
+    background-color: #34495E;
+  }
+  
+  .inquiry-table tr:nth-child(odd) {
+    background-color: #2C3E50;
+  }

@@ -1,5 +1,4 @@
 require('dotenv').config({ override: true });
-console.log("dotenv: ", JSON.stringify(process.env, null, 2))
 
 const dbConfig = {
     user: process.env.DB_USER,

@@ -7,25 +7,27 @@ function DatabaseTest() {
   const [email, setEmail] = useState("");
   const [users, setUsers] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
-  const [editingUser, setEditingUser] = useState({ id: null, name: "", email: "" });
+  const [editingUser, setEditingUser] = useState({ Id: null, Name: "", Email: "" });
 
   // Fetch users from the backend API
   useEffect(() => {
-    fetch('/users')
+    fetch('/api/users')
       .then(response => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         return response.clone().json();
       })
-      .then(data => setUsers(data))
+      .then(data => {
+        setUsers(data)
+      })
       .catch(error => console.error('Error fetching users:', error));
   }, []);
 
   const handleSave = () => {
     if (name && email) {
       const newUser = { name, email };
-      fetch('/users', {
+      fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newUser),
@@ -49,21 +51,21 @@ function DatabaseTest() {
   };
 
   const handleUpdate = () => {
-    const { id, name, email } = editingUser;
-    if (name && email) {
-      fetch(`/users/${id}`, {
+    const { Id, Name, Email } = editingUser;
+    if (Name && Email) {
+      fetch(`/api/users/${Id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email }),
+        body: JSON.stringify({ Name, Email }),
       })
         .then(response => {
           if (response.ok) {
             const updatedUsers = users.map(user =>
-              user.id === id ? { ...user, name, email } : user
+              user.Id === Id ? { ...user, Name, Email } : user
             );
             setUsers(updatedUsers);
             setEditingIndex(null);
-            setEditingUser({ id: null, name: "", email: "" });
+            setEditingUser({ Id: null, Name: "", Email: "" });
           } else {
             alert('Error updating user.');
           }
@@ -74,11 +76,11 @@ function DatabaseTest() {
     }
   };
 
-  const handleDelete = (id) => {
-    fetch(`/users/${id}`, { method: 'DELETE' })
+  const handleDelete = (Id) => {
+    fetch(`/api/users/${Id}`, { method: 'DELETE' })
       .then(response => {
         if (response.ok) {
-          const updatedUsers = users.filter(user => user.id !== id);
+          const updatedUsers = users.filter(user => user.Id !== Id);
           setUsers(updatedUsers);
         } else {
           alert('Error deleting user.');
@@ -128,28 +130,28 @@ function DatabaseTest() {
             </thead>
             <tbody>
               {users.map((user, index) => (
-                <tr key={user.id}>
-                  <td>{user.id}</td>
+                <tr key={user.Id}>
+                  <td>{user.Id}</td>
                   <td>
                     {editingIndex === index ? (
                       <input
                         type="text"
-                        value={editingUser.name}
-                        onChange={(e) => handleInputChange("name", e.target.value)}
+                        value={editingUser.Name}
+                        onChange={(e) => handleInputChange("Name", e.target.value)}
                       />
                     ) : (
-                      user.name
+                      user.Name
                     )}
                   </td>
                   <td>
                     {editingIndex === index ? (
                       <input
                         type="email"
-                        value={editingUser.email}
-                        onChange={(e) => handleInputChange("email", e.target.value)}
+                        value={editingUser.Email}
+                        onChange={(e) => handleInputChange("Email", e.target.value)}
                       />
                     ) : (
-                      user.email
+                      user.Email
                     )}
                   </td>
                   <td>
@@ -158,7 +160,7 @@ function DatabaseTest() {
                     ) : (
                       <>
                         <button onClick={() => handleEdit(index)}>Edit</button>
-                        <button onClick={() => handleDelete(user.id)}>Delete</button>
+                        <button onClick={() => handleDelete(user.Id)}>Delete</button>
                       </>
                     )}
                   </td>

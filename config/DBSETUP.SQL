@@ -4,3 +4,10 @@ CREATE TABLE Users (
     Email NVARCHAR(100) NOT NULL UNIQUE
 );
 
+CREATE TABLE SupportInquiry (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Subject NVARCHAR(255) NOT NULL,
+    Description NVARCHAR(MAX) NOT NULL,
+    Answer NVARCHAR(MAX) NULL
+);
+
