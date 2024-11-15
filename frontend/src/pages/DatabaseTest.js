@@ -12,7 +12,12 @@ function DatabaseTest() {
   // Fetch users from the backend API
   useEffect(() => {
     fetch('/users')
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.clone().json();
+      })
       .then(data => setUsers(data))
       .catch(error => console.error('Error fetching users:', error));
   }, []);
@@ -88,7 +93,6 @@ function DatabaseTest() {
 
   return (
     <div className="page">
-      <h2>Database Test Page</h2>
       <button onClick={() => setShowForm(!showForm)}>
         {showForm ? "Close" : "Create User"}
       </button>

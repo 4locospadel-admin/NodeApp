@@ -14,10 +14,10 @@ h1, h2 {
 
 /* Sidebar Styles */
 .sidebar {
-    width: 50px;
-    background-color: #E7FF7D; /* Yellow background for sidebar */
+    width: 30px;
+    background-color: #E7FF7D;
     color: #323F5E;
-    padding: 20px;
+    padding: 10px;
     position: fixed;
     top: 0;
     left: 0;
@@ -50,15 +50,17 @@ h1, h2 {
 .icon {
     margin-right: 7px;
     vertical-align: middle;
+    size: 50;
 }
 
 /* Main Content Styles */
 .app-container {
     display: flex;
+    width: 100%;
 }
 
 .main-content {
-    margin-left: 50px; /* Same as sidebar width */
+    margin-left: 30px; /* Same as sidebar width */
     padding: 20px;
     flex: 1;
     display: flex;

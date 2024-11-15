@@ -16,7 +16,6 @@ router.post('/users', async (req, res) => {
             .input('Name', sql.NVarChar, name)
             .input('Email', sql.NVarChar, email)
             .query('INSERT INTO Users (Name, Email) VALUES (@Name, @Email); SELECT SCOPE_IDENTITY() AS Id;');
-
         res.status(201).json({ id: result.recordset[0].Id, name, email });
     } catch (err) {
         console.error('Error creating user:', err);

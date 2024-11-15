@@ -1,27 +1,26 @@
 /* Ensure the body takes the full height of the viewport */
 body, html {
     height: 100%;
-    margin: 0;
+    margin: 20px;
     padding: 0;
 }
 
-/* Center the home container horizontally */
 .home {
-    display: flex;
-    justify-content: center; /* Centers content horizontally */
-    padding-top: 50px; /* Adjust this value to position content vertically */
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    padding-top: 20px;
 }
 
-/* Center the button container and align items */
 .home-button-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: inline-block;
+    text-align: center;
     gap: 15px;
 }
 
-/* Style for the buttons */
 .home-button {
+    display: block;
+    margin: 10px auto;
     padding: 10px 20px;
     background-color: #E7FF7D;
     color: #323F5E;
@@ -33,10 +32,9 @@ body, html {
 }
 
 .home-button:hover {
-    background-color: #E7FF7D;
+    background-color: #D6EE6C;
 }
 
-/* Style for the logo */
 .logo {
     width: 150px;
     margin-bottom: 20px;
