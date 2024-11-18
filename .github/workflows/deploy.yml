@@ -18,10 +18,10 @@ jobs:
         with:
           node-version: '16'
 
-      - name: Setup .env
+      - name: Install Backend Dependencies
+        working-directory: backend
         run: |
-            npm install dotenv
-            npm instal mssql
+          npm install
 
       - name: Install and Build React App
         working-directory: frontend
@@ -29,22 +29,15 @@ jobs:
           npm install
           npm run build
 
-      - name: Delete React Build from Backend
-        run: |
-          rm -rf backend/build
-
       - name: Move React Build to Backend
         run: |
+          rm -rf backend/build
           cp -r frontend/build backend/build
-
-      - name: Install Backend Dependencies
-        working-directory: backend
-        run: |
-          npm install
 
       - name: Zip Backend for Deployment
         run: |
-          zip -r app.zip ./backend
+          cd backend
+          zip -r ../app.zip .
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
