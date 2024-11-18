@@ -37,7 +37,6 @@ jobs:
         run: |
           cp -r frontend/build backend/build
 
-
       - name: Install Backend Dependencies
         working-directory: backend
         run: |
