@@ -32,12 +32,11 @@ jobs:
       - name: Move React Build to Backend
         run: |
           rm -rf backend/build
-          cp -r frontend/build backend/build
+          cp -r frontend/build backend
 
       - name: Zip Backend for Deployment
         run: |
-          cd backend
-          zip -r ../app.zip .
+          zip -r ../app.zip ./backend
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
