@@ -3,6 +3,7 @@ const path = require('path');
 const { connectToDatabase } = require('./dbConnection');
 const userController = require('./userController');
 const inquiryController = require('./inquiryController');
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 8080;
