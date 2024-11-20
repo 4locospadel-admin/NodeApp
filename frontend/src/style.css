@@ -14,7 +14,7 @@ h1, h2 {
 
 /* Sidebar Styles */
 .sidebar {
-    width: 30px;
+    width: 35px;
     background-color: #E7FF7D;
     color: #323F5E;
     padding: 10px;
@@ -60,7 +60,7 @@ h1, h2 {
 }
 
 .main-content {
-    margin-left: 30px; /* Same as sidebar width */
+    margin-left: 35px; /* Same as sidebar width */
     padding: 20px;
     flex: 1;
     display: flex;
