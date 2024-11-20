@@ -1,4 +1,3 @@
-/* Keep the blue-ish background */
 body, html {
     height: 100%;
     margin: 0;
@@ -56,6 +55,12 @@ body, html {
 @media (max-width: 768px) {
     .home-button {
         width: 80%; /* Make buttons wider on smaller screens */
-        font-size: 1rem; /* Adjust font size */
+        font-size: 1.2rem; /* Slightly smaller font size */
+        height: 50px; /* Reduce button height */
+        padding: 10px 15px; /* Adjust padding for smaller buttons */
+    }
+
+    .logo {
+        width: 150px; /* Reduce logo size for smaller screens */
     }
 }

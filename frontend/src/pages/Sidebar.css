@@ -42,7 +42,7 @@
 
 /* Icon styles with hover animation */
 .icon {
-    font-size: 45px;
+    font-size: 45px; /* Default size for larger screens */
     vertical-align: middle;
     transition: transform 0.3s ease, color 0.3s ease; /* Add smooth animation for size and color */
 }
@@ -50,4 +50,15 @@
 .icon:hover {
     transform: scale(1.2); /* Increase size on hover */
     color: #1E2B47; /* Darker shade for hover */
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+    .icon {
+        font-size: 35px; /* Smaller icons for mobile screens */
+    }
+
+    .sidebar-links {
+        gap: 35px; /* Smaller gaps between icons for mobile screens */
+    }
 }
