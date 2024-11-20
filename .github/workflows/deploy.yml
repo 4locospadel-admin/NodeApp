@@ -18,7 +18,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16  # Adjust based on your Node.js version
+          node-version: 18
 
       # Build Frontend
       - name: Install and Build Frontend
