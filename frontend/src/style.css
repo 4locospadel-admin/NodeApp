@@ -12,47 +12,6 @@ h1, h2 {
     color: #E7FF7D;
 }
 
-/* Sidebar Styles */
-.sidebar {
-    width: 35px;
-    background-color: #E7FF7D;
-    color: #323F5E;
-    padding: 10px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-}
-
-.sidebar h2 {
-    color: #323F5E;
-}
-
-.sidebar-links {
-    list-style-type: none;
-    padding: 0;
-    margin-top: 20px;
-}
-
-.sidebar-links li {
-    margin-bottom: 15px;
-}
-
-.sidebar-links a {
-    color: #323F5E;
-    text-decoration: none;
-}
-
-.sidebar-links a:hover {
-    text-decoration: underline;
-}
-
-.icon {
-    margin-right: 7px;
-    vertical-align: middle;
-    size: 5x;
-}
-
 /* Main Content Styles */
 .app-container {
     display: flex;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaHome, FaDatabase, FaEnvelope, FaInfoCircle } from 'react-icons/fa';
-import '../style.css'; // Ensure this path is correct
+import './Sidebar.css'; // Ensure this path is correct
 
 function Sidebar() {
     return (
@@ -9,22 +9,22 @@ function Sidebar() {
             <ul className="sidebar-links">
                 <li>
                     <Link to="/">
-                        <FaHome className="icon" />
+                        <FaHome className="icon" /> {/* Adjust size here */}
                     </Link>
                 </li>
                 <li>
                     <Link to="/database-test">
-                        <FaDatabase className="icon" />
+                        <FaDatabase className="icon" /> {/* Adjust size here */}
                     </Link>
                 </li>
                 <li>
                     <Link to="/contact">
-                        <FaEnvelope className="icon" />
+                        <FaEnvelope className="icon" /> {/* Adjust size here */}
                     </Link>
                 </li>
                 <li>
                     <Link to="/about">
-                        <FaInfoCircle className="icon" />
+                        <FaInfoCircle className="icon" /> {/* Adjust size here */}
                     </Link>
                 </li>
             </ul>

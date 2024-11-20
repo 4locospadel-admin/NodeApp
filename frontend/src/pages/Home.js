@@ -1,15 +1,37 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './Home.css';
 
 function Home() {
+    const navigate = useNavigate();
+
+    // Handler to redirect
+    const handleNavigation = (path) => {
+        navigate(path);
+    };
+
     return (
         <div className="home">
             <div className="home-button-container">
                 <img src="/logo.png" alt="Logo" className="logo" />
-                <Link to="/database-test"><button className="home-button">DB Test</button></Link>
-                <Link to="/contact"><button className="home-button">Contact Form</button></Link>
-                <Link to="/about"><button className="home-button">About</button></Link>
+                <button
+                    className="home-button"
+                    onClick={() => handleNavigation('/database-test')}
+                >
+                    DB Test
+                </button>
+                <button
+                    className="home-button"
+                    onClick={() => handleNavigation('/contact')}
+                >
+                    Contact Form
+                </button>
+                <button
+                    className="home-button"
+                    onClick={() => handleNavigation('/about')}
+                >
+                    About
+                </button>
             </div>
         </div>
     );

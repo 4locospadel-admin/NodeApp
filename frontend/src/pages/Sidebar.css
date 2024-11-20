@@ -1,0 +1,53 @@
+/* Sidebar Styles */
+.sidebar {
+    width: 50px;
+    background-color: #E7FF7D;
+    color: #323F5E;
+    padding: 10px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+}
+
+.sidebar h2 {
+    color: #323F5E;
+}
+
+.sidebar-links {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center items horizontally */
+    gap: 50px; /* Add vertical spacing between icons */
+    padding: 0;
+    margin-top: 25px;
+    list-style: none;
+}
+
+/* Individual list item styling */
+.sidebar-links li {
+    display: flex;
+    justify-content: center;
+    align-items: top;
+}
+
+.sidebar-links a {
+    color: #323F5E;
+    text-decoration: none;
+}
+
+.sidebar-links a:hover {
+    text-decoration: none;
+}
+
+/* Icon styles with hover animation */
+.icon {
+    font-size: 45px;
+    vertical-align: middle;
+    transition: transform 0.3s ease, color 0.3s ease; /* Add smooth animation for size and color */
+}
+
+.icon:hover {
+    transform: scale(1.2); /* Increase size on hover */
+    color: #1E2B47; /* Darker shade for hover */
+}

@@ -1,10 +1,12 @@
-/* Ensure the body takes the full height of the viewport */
+/* Keep the blue-ish background */
 body, html {
     height: 100%;
-    margin: 20px;
+    margin: 0;
     padding: 0;
+    background-color: #323F5E;
 }
 
+/* Main container for the home page */
 .home {
     width: 100%;
     height: 100%;
@@ -12,30 +14,48 @@ body, html {
     padding-top: 20px;
 }
 
+/* Flexbox container for buttons and logo */
 .home-button-container {
-    display: inline-block;
-    text-align: center;
-    gap: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding-top: 20px;
 }
 
+/* Buttons with dynamic background animation */
 .home-button {
     display: block;
-    margin: 10px auto;
-    padding: 10px 20px;
-    background-color: #E7FF7D;
+    padding: 15px 20px; /* Adjust padding for bigger buttons */
     color: #323F5E;
+    background-color: #e7ff7d; /* Light greenish-yellow */
     border: none;
     cursor: pointer;
-    font-size: 1rem;
-    width: 200px;
-    transition: background-color 0.3s;
+    font-size: 1.5rem; /* Larger text */
+    width: 65%;
+    height: 80px;
+    font-weight: bold; /* Make labels bold */
+    text-decoration: none;
+    border-radius: 15px;
+    transition: transform 0.3s, background-color 0.3s ease-in-out; /* Smooth transitions */
 }
 
+/* Hover effect for buttons */
 .home-button:hover {
-    background-color: #D6EE6C;
+    transform: scale(1.05); /* Slightly enlarge */
+    background-color: #c4df5a; /* Darker shade of the original background */
 }
 
+/* Logo styling */
 .logo {
-    width: 150px;
-    margin-bottom: 20px;
+    width: 250px;
+    margin-bottom: 30px;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+    .home-button {
+        width: 80%; /* Make buttons wider on smaller screens */
+        font-size: 1rem; /* Adjust font size */
+    }
 }
