@@ -1,0 +1,47 @@
+name: Deploy Node/React App to Azure
+
+on:
+  push:
+    branches:
+      - main  # Trigger deployment on push to the main branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16  # Adjust based on your Node.js version
+
+      # Build Frontend
+      - name: Install and Build Frontend
+        working-directory: ./frontend
+        run: |
+          npm install
+          npm run build
+
+      # Replace Build Folder in Backend
+      - name: Replace Build Folder in Backend
+        run: |
+          rm -rf ./backend/build
+          cp -r ./frontend/build ./backend/build
+
+      # Install Backend Dependencies
+      - name: Install Backend Dependencies
+        working-directory: ./backend
+        run: npm install
+
+      # Deploy to Azure App Service
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "4locospadel"  # Replace with your Azure App Service name
+          slot-name: "production"            # Use "production" or "staging" as appropriate
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
