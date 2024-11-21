@@ -13,7 +13,7 @@ function Home() {
     return (
         <div className="home">
             <div className="home-button-container">
-                <img src="/logo.png" alt="Logo" className="logo" />
+                <img src="/4locos_logo.png" alt="Logo" className="logo" />
                 <button
                     className="home-button"
                     onClick={() => handleNavigation('/database-test')}

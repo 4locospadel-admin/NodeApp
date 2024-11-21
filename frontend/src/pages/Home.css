@@ -18,7 +18,7 @@ body, html {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
+    gap: 35px;
     padding-top: 20px;
 }
 
@@ -26,9 +26,9 @@ body, html {
 .home-button {
     display: block;
     padding: 15px 20px; /* Adjust padding for bigger buttons */
-    color: #323F5E;
-    background-color: #e7ff7d; /* Light greenish-yellow */
-    border: none;
+    color: #323F5E; /* Text color */
+    background-color: #e7ff7d; /* Light greenish-yellow background */
+    border: 5px solid #e7ff7d; /* Border matches the background */
     cursor: pointer;
     font-size: 1.5rem; /* Larger text */
     width: 65%;
@@ -36,31 +36,39 @@ body, html {
     font-weight: bold; /* Make labels bold */
     text-decoration: none;
     border-radius: 15px;
-    transition: transform 0.3s, background-color 0.3s ease-in-out; /* Smooth transitions */
+    transition: transform 0.3s, background-color 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out; /* Smooth transitions */
 }
+
 
 /* Hover effect for buttons */
 .home-button:hover {
     transform: scale(1.05); /* Slightly enlarge */
-    background-color: #c4df5a; /* Darker shade of the original background */
+    background-color: #323F5E; /* Dark blue-gray background */
+    color: #e7ff7d; /* Light greenish-yellow text color */
+    border-color: #e7ff7d; /* Change border color to match the text */
 }
 
 /* Logo styling */
 .logo {
-    width: 250px;
+    width: 400px;
     margin-bottom: 30px;
 }
 
 /* Responsive design for smaller screens */
 @media (max-width: 768px) {
+    .home-button-container {
+        gap: 25px;
+        padding-top: 15px;
+    }
     .home-button {
         width: 80%; /* Make buttons wider on smaller screens */
         font-size: 1.2rem; /* Slightly smaller font size */
         height: 50px; /* Reduce button height */
         padding: 10px 15px; /* Adjust padding for smaller buttons */
+        border: 3px solid #e7ff7d; /* Light greenish-yellow border */
     }
 
     .logo {
-        width: 150px; /* Reduce logo size for smaller screens */
+        width: 200px; /* Reduce logo size for smaller screens */
     }
 }
