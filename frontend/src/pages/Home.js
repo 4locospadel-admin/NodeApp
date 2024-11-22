@@ -16,9 +16,15 @@ function Home() {
                 <img src="/4locos_logo.png" alt="Logo" className="logo" />
                 <button
                     className="home-button"
-                    onClick={() => handleNavigation('/database-test')}
+                    onClick={() => handleNavigation('/profile')}
                 >
-                    DB Test
+                    Profile
+                </button>
+                <button
+                    className="home-button"
+                    onClick={() => handleNavigation('/reservation')}
+                >
+                    Reservation
                 </button>
                 <button
                     className="home-button"
