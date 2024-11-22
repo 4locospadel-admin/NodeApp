@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaHome, FaDatabase, FaEnvelope, FaInfoCircle, FaCalendar, FaUser } from 'react-icons/fa';
+import { FaHome, FaEnvelope, FaInfoCircle, FaCalendar, FaUser } from 'react-icons/fa';
 import './Sidebar.css'; // Ensure this path is correct
 
 function Sidebar() {
