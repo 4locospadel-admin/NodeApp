@@ -1,19 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import './ContactForm.css';
+import React, { useState, useEffect } from "react";
+import "./ContactForm.css";
 
 function ContactForm() {
-  const [email, setEmail] = useState('');
-  const [category, setCategory] = useState('Question');
+  const [email, setEmail] = useState("");
+  const [category, setCategory] = useState("Question");
   const [receiveNotifications, setReceiveNotifications] = useState(false);
-  const [subject, setSubject] = useState('');
-  const [message, setMessage] = useState('');
-  const [placeholder, setPlaceholder] = useState('Write us anything');
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [placeholder, setPlaceholder] = useState("Write us anything");
   const [inquiries, setInquiries] = useState([]);
-  const [sortConfig, setSortConfig] = useState({ key: 'updatedDate', direction: 'desc' });
+  const [sortConfig, setSortConfig] = useState({
+    key: "createdDate",
+    direction: "desc",
+  });
+  const [showInquiries, setShowInquiries] = useState(false);
 
   // Fetch inquiries from the backend API
   useEffect(() => {
-    fetch('/api/inquiries')
+    fetch("/api/inquiries")
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -23,17 +27,50 @@ function ContactForm() {
       .then((data) => {
         setInquiries(data);
       })
-      .catch((error) => console.error('Error fetching inquiries:', error));
+      .catch((error) => console.error("Error fetching inquiries:", error));
   }, []);
 
-  const handleSave = () => {
-    if (!email || !subject || !message) {
-      alert('Please fill out all fields before saving.');
-      return;
+  const isEmailValid = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const isFormValid = () =>
+    email && subject && message && isEmailValid(email);
+
+  const handleSave = async () => {
+    if (!isFormValid()) return;
+
+    const inquiry = {
+      Email: email,
+      Category: category,
+      Subject: subject,
+      Description: message,
+      Notification: receiveNotifications,
+    };
+
+    try {
+      const response = await fetch("/api/inquiries", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(inquiry),
+      });
+
+      if (response.ok) {
+        const createdInquiry = await response.json();
+        setInquiries((prev) => [createdInquiry, ...prev]);
+        alert("Inquiry successfully created!");
+        setEmail("");
+        setSubject("");
+        setMessage("");
+        setReceiveNotifications(false);
+        setCategory("Question");
+      } else {
+        throw new Error("Failed to create inquiry.");
+      }
+    } catch (error) {
+      console.error("Error creating inquiry:", error);
+      alert("There was an error submitting your inquiry.");
     }
-    const inquiry = { email, category, subject, message };
-    console.log('Saved Inquiry:', inquiry);
-    // Add save logic here (e.g., API call to backend)
   };
 
   const toggleExpandRow = (Id) => {
@@ -46,13 +83,13 @@ function ContactForm() {
 
   const sortInquiries = (key) => {
     const newDirection =
-      sortConfig.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc';
+      sortConfig.key === key && sortConfig.direction === "asc" ? "desc" : "asc";
     setSortConfig({ key, direction: newDirection });
 
     setInquiries((prevInquiries) =>
       [...prevInquiries].sort((a, b) => {
-        if (a[key] < b[key]) return newDirection === 'asc' ? -1 : 1;
-        if (a[key] > b[key]) return newDirection === 'asc' ? 1 : -1;
+        if (a[key] < b[key]) return newDirection === "asc" ? -1 : 1;
+        if (a[key] > b[key]) return newDirection === "asc" ? 1 : -1;
         return 0;
       })
     );
@@ -87,6 +124,9 @@ function ContactForm() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Your email"
           />
+          {!isEmailValid(email) && email && (
+            <small style={{ color: "red" }}>Invalid email format</small>
+          )}
         </div>
 
         <div className="form-group checkbox-group">
@@ -120,39 +160,79 @@ function ContactForm() {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder={placeholder}
-            onFocus={() => setPlaceholder('')}
-            onBlur={() => setPlaceholder('Write us anything')}
+            onFocus={() => setPlaceholder("")}
+            onBlur={() => setPlaceholder("Write us anything")}
           ></textarea>
           <small>{500 - message.length} characters remaining</small>
         </div>
 
-        <button onClick={handleSave} className="save-button">Save</button>
+        <button
+          onClick={handleSave}
+          className="send-button"
+          disabled={!isFormValid()}
+        >
+          Send
+        </button>
       </div>
 
-      <h2>Support Inquiries</h2>
-      <div className="inquiry-list">
-        <div className="inquiry-header">
-          <span onClick={() => sortInquiries('Subject')}>Subject</span>
-          <span onClick={() => sortInquiries('Status')}>Status</span>
-        </div>
-        {inquiries.map((inquiry) => (
-          <div key={inquiry.Id} className="inquiry-row">
-            <div className="inquiry-summary">
-              <span>{inquiry.Subject}</span>
-              <span>{inquiry.Status}</span>
-              <button onClick={() => toggleExpandRow(inquiry.Id)}>
-                {inquiry.isExpanded ? '▲' : '▼'}
-              </button>
-            </div>
-            {inquiry.isExpanded && (
-              <div className="inquiry-details">
-                <p><strong>Message:</strong> {inquiry.Description}</p>
-                <p><strong>Response:</strong> {inquiry.Answer || 'No response yet'}</p>
-              </div>
-            )}
+      <hr className="divider" />
+
+      <button
+        className={`toggle-inquiries ${
+          showInquiries ? "blue-button" : "yellow-button"
+        }`}
+        onClick={() => setShowInquiries(!showInquiries)}
+      >
+        {showInquiries ? "Hide Past Inquiries" : "Show Past Inquiries"}
+      </button>
+
+      {showInquiries && (
+        <div className="inquiry-list">
+          {/* Inquiry Header */}
+          <div className="inquiry-header">
+            <span onClick={() => sortInquiries("Subject")}>Subject</span>
+            <span onClick={() => sortInquiries("Status")}>Status</span>
+            <span onClick={() => sortInquiries("Created")}>Created</span>
           </div>
-        ))}
-      </div>
+
+          {/* Inquiry Rows */}
+          {inquiries.map((inquiry) => (
+            <div key={inquiry.Id} className="inquiry-row">
+              {/* Summary Row */}
+              <div className="inquiry-summary">
+                <span>{inquiry.Subject}</span>
+                <span>{inquiry.Status}</span>
+                <span>{new Date(inquiry.Created).toLocaleDateString()}</span>
+                <button onClick={() => toggleExpandRow(inquiry.Id)}>
+                  {inquiry.isExpanded ? "▲" : "▼"}
+                </button>
+              </div>
+
+              {/* Expanded Details */}
+              {inquiry.isExpanded && (
+                <div className="inquiry-details">
+                  <div className="detail-item">
+                    <strong>Category:</strong>
+                    <p>{inquiry.Category}</p>
+                  </div>
+                  <div className="detail-item">
+                    <strong>Notification:</strong>
+                    <p>{inquiry.Notification ? "Yes" : "No"}</p>
+                  </div>
+                  <div className="detail-item">
+                    <strong>Message:</strong>
+                    <p>{inquiry.Description}</p>
+                  </div>
+                  <div className="detail-item">
+                    <strong>Response:</strong>
+                    <p>{inquiry.Answer || "No response yet"}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

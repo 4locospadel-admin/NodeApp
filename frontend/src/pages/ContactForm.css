@@ -19,6 +19,34 @@ h2 {
   width: 100%;
 }
 
+.divider {
+  border: 1px solid #E7FF7D;
+  width: 100%;
+  margin: 35px auto;
+}
+
+.toggle-inquiries {
+  display: block;
+  margin: 10px auto;
+  padding: 15px 50px;
+  width: 65%;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.yellow-button {
+  background-color: #E7FF7D;
+  color: #323F5E;
+}
+
+.blue-button {
+  background-color: #34495E;
+  color: #E7FF7D;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -65,7 +93,8 @@ textarea {
   justify-content: flex-start;
   gap: 10px;
   width: 100%;
-  margin-bottom: 35px;
+  margin-bottom: 50px;
+  margin-right: 5px;
 }
 
 /* Ensure labels in checkbox group align visually */
@@ -78,9 +107,11 @@ textarea {
   width: 15px;
 }
 
-.save-button {
-  padding: 15px 100px;
+.send-button {
+  padding: 15px 50px;
+  width: 65%;
   background-color: #E7FF7D;
+  font-weight: bold;
   color: #323F5E;
   border: none;
   cursor: pointer;
@@ -100,7 +131,7 @@ textarea {
 .inquiry-header,
 .inquiry-summary {
   display: grid;
-  grid-template-columns: 3fr 2fr 1fr;
+  grid-template-columns: 3fr 2fr 2fr 1fr;
   align-items: center;
   border-bottom: 1px solid #E7FF7D;
   padding: 10px 0;
@@ -116,14 +147,14 @@ textarea {
   padding: 10px;
 }
 
-.inquiry-summary span,
-.inquiry-summary button {
+.inquiry-summary span {
   text-align: left;
 }
 
 .inquiry-summary button {
   text-align: middle;
   background-color: transparent; 
+  text-align: right;
   color: #E7FF7D; 
   border: none; 
   cursor: pointer;
@@ -143,10 +174,29 @@ textarea {
   border-radius: 5px;
 }
 
+.detail-item {
+  margin-bottom: 10px;
+}
+
+.detail-item strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #E7FF7D;
+}
+
+.detail-item p {
+  margin: 0;
+  color: #FFFFFF;
+}
+
 /* Mobile styling */
 @media (max-width: 768px) {
   .contact-page {
     width: calc(95% - 35px);
     margin-left: 20px;
+  }
+
+  .checkbox-group label {
+    font-size: 10px;
   }
 }
