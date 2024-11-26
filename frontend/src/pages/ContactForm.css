@@ -1,71 +1,102 @@
-form {
-    margin-bottom: 20px;
-  }
-  
-  div {
-    margin-bottom: 10px;
-  }
-  
-  label {
-    display: block;
-    margin-bottom: 5px;
-  }
-  
-  input,
-  textarea {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-  }
-  
-  button {
-    padding: 10px 15px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-  
-  button:hover {
-    background-color: #0056b3;
-  }
-  
-  ul {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  li {
-    margin-bottom: 10px;
-  }
+.contact-page {
+  flex-direction: column;
+  padding: 20px;
+  background-color: #323F5E;
+  color: #E7FF7D;
+  width: calc(65% - 50px);
+  height: 100%; 
+  margin-left: 50px;
+}
 
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+label {
+  align-self: flex-start;
+  margin-bottom: 5px;
+  color: #E7FF7D;
+  font-weight: bold;
+}
+
+input,
+select,
+textarea {
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #E7FF7D;
+  border-radius: 5px;
+  background-color: #2C3E50;
+  color: #E7FF7D;
+}
+
+input, textarea {
+  width: 97%;
+}
+
+select {
+  width: 100%;
+}
+
+
+textarea {
+  resize: none;
+  height: 100px;
+}
+
+.checkbox-group {
+  flex-direction: row; 
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 35px;
+}
+
+/* Ensure labels in checkbox group align visually */
+.checkbox-group label {
+  margin: 0;
+}
+
+/* Input styling for checkbox */
+.checkbox-group input[type="checkbox"] {
+  width: 15px;
+}
+
+.save-button {
+  padding: 15px 100px;
+  background-color: #E7FF7D;
+  color: #323F5E;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s;
+  border-radius: 5px;
+}
+
+.save-button:hover {
+  background-color: #c4e66b;
+}
+
+/* Mobile styling */
+@media (max-width: 768px) {
   .contact-page {
-    padding: 20px;
-    background-color: #323F5E;
-    color: #E7FF7D;
+    width: calc(95% - 35px);
   }
-  
-  .inquiry-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
-  
-  .inquiry-table th, .inquiry-table td {
-    border: 1px solid #E7FF7D;
-    padding: 10px;
-    text-align: left;
-  }
-  
-  .inquiry-table th {
-    background-color: #2C3E50;
-    font-weight: bold;
-  }
-  
-  .inquiry-table tr:nth-child(even) {
-    background-color: #34495E;
-  }
-  
-  .inquiry-table tr:nth-child(odd) {
-    background-color: #2C3E50;
-  }
+}
