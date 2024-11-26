@@ -3,9 +3,8 @@
   padding: 20px;
   background-color: #323F5E;
   color: #E7FF7D;
-  width: calc(65% - 50px);
+  width: calc(55% - 50px);
   height: 100%; 
-  margin-left: 50px;
 }
 
 h2 {
@@ -94,9 +93,60 @@ textarea {
   background-color: #c4e66b;
 }
 
+.inquiry-list {
+  margin-top: 20px;
+}
+
+.inquiry-header,
+.inquiry-summary {
+  display: grid;
+  grid-template-columns: 3fr 2fr 1fr;
+  align-items: center;
+  border-bottom: 1px solid #E7FF7D;
+  padding: 10px 0;
+}
+
+.inquiry-header{
+  font-weight: bold;
+}
+
+.inquiry-row {
+  background-color: #2C3E50;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+.inquiry-summary span,
+.inquiry-summary button {
+  text-align: left;
+}
+
+.inquiry-summary button {
+  text-align: middle;
+  background-color: transparent; 
+  color: #E7FF7D; 
+  border: none; 
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 5px;
+  transition: color 0.3s ease;
+}
+
+.inquiry-summary button:hover {
+  color: #c4e66b;
+}
+
+.inquiry-details {
+  margin-top: 10px;
+  background-color: #34495E;
+  padding: 10px;
+  border-radius: 5px;
+}
+
 /* Mobile styling */
 @media (max-width: 768px) {
   .contact-page {
     width: calc(95% - 35px);
+    margin-left: 20px;
   }
 }

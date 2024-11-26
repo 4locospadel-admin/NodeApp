@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ContactForm.css';
 
 function ContactForm() {
@@ -8,6 +8,23 @@ function ContactForm() {
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [placeholder, setPlaceholder] = useState('Write us anything');
+  const [inquiries, setInquiries] = useState([]);
+  const [sortConfig, setSortConfig] = useState({ key: 'updatedDate', direction: 'desc' });
+
+  // Fetch inquiries from the backend API
+  useEffect(() => {
+    fetch('/api/inquiries')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setInquiries(data);
+      })
+      .catch((error) => console.error('Error fetching inquiries:', error));
+  }, []);
 
   const handleSave = () => {
     if (!email || !subject || !message) {
@@ -19,12 +36,33 @@ function ContactForm() {
     // Add save logic here (e.g., API call to backend)
   };
 
+  const toggleExpandRow = (Id) => {
+    setInquiries((prevInquiries) =>
+      prevInquiries.map((inquiry) =>
+        inquiry.Id === Id ? { ...inquiry, isExpanded: !inquiry.isExpanded } : inquiry
+      )
+    );
+  };
+
+  const sortInquiries = (key) => {
+    const newDirection =
+      sortConfig.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc';
+    setSortConfig({ key, direction: newDirection });
+
+    setInquiries((prevInquiries) =>
+      [...prevInquiries].sort((a, b) => {
+        if (a[key] < b[key]) return newDirection === 'asc' ? -1 : 1;
+        if (a[key] > b[key]) return newDirection === 'asc' ? 1 : -1;
+        return 0;
+      })
+    );
+  };
+
   return (
     <div className="contact-page">
       <h2>Contact us</h2>
 
       <div className="form">
-
         <div className="form-group">
           <label htmlFor="category">Category</label>
           <select
@@ -85,10 +123,35 @@ function ContactForm() {
             onFocus={() => setPlaceholder('')}
             onBlur={() => setPlaceholder('Write us anything')}
           ></textarea>
-          <small>{500 - subject.length} characters remaining</small>
+          <small>{500 - message.length} characters remaining</small>
         </div>
 
         <button onClick={handleSave} className="save-button">Save</button>
+      </div>
+
+      <h2>Support Inquiries</h2>
+      <div className="inquiry-list">
+        <div className="inquiry-header">
+          <span onClick={() => sortInquiries('Subject')}>Subject</span>
+          <span onClick={() => sortInquiries('Status')}>Status</span>
+        </div>
+        {inquiries.map((inquiry) => (
+          <div key={inquiry.Id} className="inquiry-row">
+            <div className="inquiry-summary">
+              <span>{inquiry.Subject}</span>
+              <span>{inquiry.Status}</span>
+              <button onClick={() => toggleExpandRow(inquiry.Id)}>
+                {inquiry.isExpanded ? '▲' : '▼'}
+              </button>
+            </div>
+            {inquiry.isExpanded && (
+              <div className="inquiry-details">
+                <p><strong>Message:</strong> {inquiry.Description}</p>
+                <p><strong>Response:</strong> {inquiry.Answer || 'No response yet'}</p>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );

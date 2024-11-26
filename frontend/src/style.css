@@ -19,7 +19,7 @@ h1, h2 {
 }
 
 .main-content {
-    margin-left: 35px; /* Same as sidebar width */
+    margin-left: 50px; /* Same as sidebar width */
     padding: 20px;
     flex: 1;
     display: flex;
@@ -51,4 +51,11 @@ h1, h2 {
 
 .button:hover {
     background-color: #c5e764;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 35px;
+    }
 }
