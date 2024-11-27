@@ -4,9 +4,9 @@
     color: #E7FF7D;
     font-family: Arial, sans-serif;
     line-height: 1.6;
-    margin: 0 auto;
     width: calc(100% - 50px);
     max-width: 900px;
+    margin-left: 25px;
   }
   
   h1, h2 {
@@ -29,7 +29,7 @@
   }
   
   .section p {
-    color: #BFC9D9;
+    color: #e1e6ee;
     margin-bottom: 10px;
   }
   
@@ -49,7 +49,7 @@
   
   .faq-section p {
     margin-bottom: 15px;
-    color: #BFC9D9;
+    color: #e1e6ee;
   }
   
   @media (max-width: 768px) {
