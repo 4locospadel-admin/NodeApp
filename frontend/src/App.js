@@ -6,6 +6,7 @@ import Profile from './pages/Profile';
 import Reservation from './pages/Reservation';
 import About from './pages/About';
 import Sidebar from './pages/Sidebar';
+import ResetPassword from "./pages/ResetPassword";
 import './style.css';
 
 function App() {
@@ -30,6 +31,7 @@ function AppContent() {
                     <Route path="/reservation" element={<Reservation />} />
                     <Route path="/contact" element={<ContactForm />} />
                     <Route path="/about" element={<About />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
                 </Routes>
             </div>
         </div>

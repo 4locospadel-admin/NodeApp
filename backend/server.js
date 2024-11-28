@@ -3,7 +3,9 @@ const path = require('path');
 const { connectToDatabase } = require('./dbConnection');
 const userController = require('./userController');
 const inquiryController = require('./inquiryController');
-require('dotenv').config();
+const nodemailer = require('nodemailer');
+
+require('dotenv').config(({ override: true }));
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -35,3 +37,4 @@ connectToDatabase()
     console.error('Failed to connect to the database:', err);
     process.exit(1);
   });
+

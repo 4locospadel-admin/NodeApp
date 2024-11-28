@@ -1,0 +1,119 @@
+.profile-page {
+    padding: 20px;
+    background-color: #323F5E;
+    color: #E7FF7D;
+    border-radius: 10px;
+    margin: 0 auto;
+    height: 100%;
+  
+    /* Width adjustment based on screen size */
+    width: calc(65% - 50px);
+  }
+  
+  @media (max-width: 768px) {
+    .profile-page {
+      width: calc(90% - 35px);
+    }
+  }
+  
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .auth-form,
+  .profile-details {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .auth-form input,
+  .profile-details input {
+    padding: 10px;
+    border: 1px solid #E7FF7D;
+    border-radius: 5px;
+    background-color: #2C3E50;
+    color: #E7FF7D;
+  }
+  
+  button {
+    padding: 10px;
+    background-color: #E7FF7D;
+    color: #323F5E;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  button:hover {
+    background-color: #c4e66b;
+  }
+  
+  /* Custom styles for Create Account and Forgot Password buttons */
+  .toggle-button,
+  .reset-button {
+    background-color: transparent;
+    color: #e7ff7d;
+    border: 2px solid #e7ff7d;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-align: center;
+  
+    /* Ensure consistent button size */
+    width: 150px; /* Set uniform width */
+    box-sizing: border-box; /* Include padding and border in width */
+  }
+  
+  .toggle-button:hover,
+  .reset-button:hover {
+    background-color: #e7ff7d;
+    color: #323f5e;
+  }
+  
+  /* Alignment for buttons */
+  .auth-buttons {
+    display: flex;
+    justify-content: center; /* Align buttons horizontally */
+    gap: 15px; /* Space between buttons */
+    margin-top: 20px;
+  }
+  
+  @media (max-width: 768px) {
+    .auth-buttons {
+      flex-direction: column; /* Stack buttons vertically on small screens */
+      align-items: center;
+      gap: 10px; /* Reduce space between buttons */
+    }
+  
+    .toggle-button,
+    .reset-button {
+      width: 100%; /* Make buttons full width on small screens */
+    }
+  }
+  
+  .logout-button {
+    margin-top: 20px;
+    background-color: #E7FF7D;
+    color: #323F5E;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .logout-button:hover {
+    background-color: #c4e66b;
+  }
+  
+  .profile-details p {
+    margin-bottom: 10px;
+  }
+  
+  .profile-details label {
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
