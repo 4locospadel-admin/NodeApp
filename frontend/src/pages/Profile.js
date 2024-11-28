@@ -51,6 +51,7 @@ function Profile() {
     }
   };
 
+  /*
   const handleSaveChanges = async () => {
     if (newPassword && newPassword !== confirmPassword) {
       alert("Passwords do not match.");
@@ -83,6 +84,7 @@ function Profile() {
       alert(err.message);
     }
   };
+  */
 
   const handlePasswordReset = async () => {
     if (!Email) {

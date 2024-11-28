@@ -15,7 +15,6 @@ function ResetPassword() {
     }
 
     try {
-      console.log("ResetToken:", ResetToken);
       const response = await fetch("/api/reset-password", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },

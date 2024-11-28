@@ -79,13 +79,10 @@ router.put("/reset-password", async (req, res) => {
       return res.status(400).send("Token and password are required.");
     }
   
-    try {
-      console.log("Received ResetToken:", ResetToken);
-  
+    try {  
       // Verify and decode the token
       const decoded = jwt.verify(ResetToken, process.env.JWT_SECRET);
       const email = decoded.email; // Extract email from token payload
-      console.log("Decoded email:", email);
   
       // Connect to the database
       const pool = await connectToDatabase();
