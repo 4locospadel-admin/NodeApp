@@ -4,13 +4,18 @@
   "icons": [
     {
       "src": "4locos_icon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
+      "sizes": "512x512",
       "type": "image/x-icon"
     },
     {
       "src": "4locos_logo.png",
       "type": "image/png",
       "sizes": "878x878"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
     }
   ],
   "start_url": ".",

@@ -3,7 +3,6 @@ const path = require('path');
 const { connectToDatabase } = require('./dbConnection');
 const userController = require('./userController');
 const inquiryController = require('./inquiryController');
-const nodemailer = require('nodemailer');
 
 require('dotenv').config(({ override: true }));
 

@@ -2,7 +2,6 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const sql = require("mssql");
-const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const { connectToDatabase } = require("./dbConnection");
 const router = express.Router();
