@@ -62,10 +62,8 @@
     cursor: pointer;
     transition: background-color 0.3s;
     text-align: center;
-  
-    /* Ensure consistent button size */
-    width: 150px; /* Set uniform width */
-    box-sizing: border-box; /* Include padding and border in width */
+    width: 100%;
+    box-sizing: border-box; 
   }
   
   .toggle-button:hover,
@@ -77,6 +75,7 @@
   /* Alignment for buttons */
   .auth-buttons {
     display: flex;
+    flex-direction: column; /* Stack buttons vertically on small screens */
     justify-content: center; /* Align buttons horizontally */
     gap: 15px; /* Space between buttons */
     margin-top: 20px;
