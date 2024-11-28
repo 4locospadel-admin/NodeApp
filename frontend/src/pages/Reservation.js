@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./Reservation.css";
@@ -15,6 +15,10 @@ function Reservation() {
         court: "",
     });
     const [confirmDetails, setConfirmDetails] = useState(null);
+
+    useEffect(() => {
+        alert("This page is still under development. Most of the functions are not available.");
+    }, []); // The empty dependency array ensures this runs only once when the component mounts.
 
     const courts = ["Court 1", "Court 2", "Court 3"]; // Replace with backend data
     const times = Array.from({ length: 33 }, (_, i) => {
@@ -93,7 +97,6 @@ function Reservation() {
                             {courts.map((court) => (
                                 <td
                                     key={`${time}-${court}`}
-                                    //className={isReserved(time, court) ? "occupied" : "free"}
                                     className="free"
                                     onClick={
                                         !isReserved(time, court)
