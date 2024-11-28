@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./ResetPassword.css"
+import "./ResetPassword.css";
 
 function ResetPassword() {
   const [Password, setPassword] = useState("");
@@ -9,7 +9,12 @@ function ResetPassword() {
   const navigate = useNavigate();
 
   const handleReset = async () => {
-    if (!Password || Password !== confirmPassword) {
+    if (!Password || Password.length < 5) {
+      alert("Password must be at least 5 characters long.");
+      return;
+    }
+
+    if (Password !== confirmPassword) {
       alert("Passwords do not match.");
       return;
     }
@@ -46,7 +51,7 @@ function ResetPassword() {
       <div>
         <label>New Password</label>
         <input
-          type="Password"
+          type="password"
           value={Password}
           onChange={(e) => setPassword(e.target.value)}
         />
@@ -54,7 +59,7 @@ function ResetPassword() {
       <div>
         <label>Confirm Password</label>
         <input
-          type="Password"
+          type="password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
         />

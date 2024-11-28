@@ -3,15 +3,23 @@ const router = express.Router();
 const sql = require('mssql');
 const { connectToDatabase } = require('./dbConnection');
 
-// Fetch all inquiries
-router.get('/inquiries', async (req, res) => {
+router.get("/inquiries", async (req, res) => {
+  const { email } = req.query; // Extract email from query parameters
+  if (!email) {
+    return res.status(400).json({ message: "Email is required." });
+  }
+
   try {
     const pool = await connectToDatabase();
-    const result = await pool.request().query('SELECT * FROM SupportInquiry ORDER BY Created DESC;');
+    const result = await pool
+      .request()
+      .input("Email", sql.NVarChar, email)
+      .query("SELECT * FROM SupportInquiry WHERE Email = @Email");
+
     res.status(200).json(result.recordset);
-  } catch (err) {
-    console.error('Error fetching inquiries:', err);
-    res.status(500).json({ message: 'Internal server error.' });
+  } catch (error) {
+    console.error("Error fetching inquiries:", error);
+    res.status(500).json({ message: "Internal server error." });
   }
 });
 

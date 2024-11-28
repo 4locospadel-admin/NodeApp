@@ -16,7 +16,8 @@ function Profile() {
     if (storedUser) {
       const user = JSON.parse(storedUser);
       setLoggedInUser(user);
-      setName(user.Name); // Pre-fill the Name field
+      setName(user.Name);
+      setEmail(user.Email);
     }
   }, []);
 
@@ -51,7 +52,6 @@ function Profile() {
     }
   };
 
-  /*
   const handleSaveChanges = async () => {
     if (newPassword && newPassword !== confirmPassword) {
       alert("Passwords do not match.");
@@ -68,6 +68,7 @@ function Profile() {
         body: JSON.stringify({
           Name: Name !== loggedInUser.Name ? Name : undefined,
           newPassword: newPassword || undefined,
+          Email: Email ? Email : undefined
         }),
       });
 
@@ -84,7 +85,6 @@ function Profile() {
       alert(err.message);
     }
   };
-  */
 
   const handlePasswordReset = async () => {
     if (!Email) {
@@ -183,6 +183,7 @@ function Profile() {
                 type="text"
                 value={Name}
                 onChange={(e) => setName(e.target.value)}
+                placeholder={loggedInUser.Name}
               />
             </div>
             <div>
@@ -203,6 +204,9 @@ function Profile() {
                 placeholder="Confirm New Password"
               />
             </div>
+            <button onClick={handleSaveChanges} className="save-changes-button">
+              Save Changes
+            </button>
             <button onClick={handleLogout} className="logout-button">
               Logout
             </button>

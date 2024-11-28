@@ -21,6 +21,9 @@ jobs:
       - name: Clean npm cache
         run: npm cache clean --force
 
+      - name: Install Project Dependencies
+        run: npm install
+
       - name: Build Frontend
         working-directory: ./frontend
         run: |

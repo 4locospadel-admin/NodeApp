@@ -182,5 +182,56 @@ router.put("/reset-password", async (req, res) => {
       res.status(500).send("Internal server error.");
     }
   });
+
+  router.put("/user/update", async (req, res) => {
+    const { Name, newPassword } = req.body;
+    const token = req.headers.authorization?.split(" ")[1];
+  
+    if (!token) {
+      return res.status(401).send("Unauthorized.");
+    }
+  
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const Email = decoded.Email;
+  
+      const pool = await connectToDatabase();
+  
+      // Check if user exists
+      const userQuery = await pool
+        .request()
+        .input("Email", sql.NVarChar, Email)
+        .query("SELECT * FROM [User] WHERE Email = @Email");
+  
+      if (userQuery.recordset.length === 0) {
+        return res.status(404).send("User not found.");
+      }
+  
+      // Update the user's name and/or password
+      if (Name || newPassword) {
+        const hashedPassword = newPassword
+          ? await bcrypt.hash(newPassword, 10)
+          : null;
+  
+        await pool
+          .request()
+          .input("Email", sql.NVarChar, Email)
+          .input("Name", sql.NVarChar, Name || userQuery.recordset[0].Name)
+          .input("Password", sql.NVarChar, hashedPassword)
+          .query(
+            "UPDATE [User] SET Name = @Name" +
+              (newPassword ? ", Password = @Password" : "") +
+              " WHERE Email = @Email"
+          );
+  
+        return res.status(200).json({ Name: Name || userQuery.recordset[0].Name });
+      }
+  
+      res.status(400).send("No updates were provided.");
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Internal server error.");
+    }
+  });
   
 module.exports = router;

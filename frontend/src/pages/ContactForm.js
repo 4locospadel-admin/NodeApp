@@ -15,9 +15,18 @@ function ContactForm() {
   });
   const [showInquiries, setShowInquiries] = useState(false);
 
-  // Fetch inquiries from the backend API
+ // Fetch inquiries for the logged-in user's email
   useEffect(() => {
-    fetch("/api/inquiries")
+   // Retrieve the logged-in user from local storage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setEmail(parsedUser.Email); // Pre-fill the email field
+    }
+
+    const { Email } = JSON.parse(storedUser); // Extract email from user object
+
+    fetch(`/api/inquiries?email=${encodeURIComponent(Email)}`) // Send email as a query parameter
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -25,7 +34,7 @@ function ContactForm() {
         return response.json();
       })
       .then((data) => {
-        setInquiries(data);
+        setInquiries(data); // Update inquiries state
       })
       .catch((error) => console.error("Error fetching inquiries:", error));
   }, []);
