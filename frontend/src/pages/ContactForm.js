@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./ContactForm.css";
 
 function ContactForm() {
-  const [email, setEmail] = useState("");
+  const [Email, setEmail] = useState("");
   const [category, setCategory] = useState("Question");
   const [receiveNotifications, setReceiveNotifications] = useState(false);
   const [subject, setSubject] = useState("");
@@ -24,7 +24,6 @@ function ContactForm() {
       setEmail(parsedUser.Email); // Pre-fill the email field
     }
 
-    const { Email } = JSON.parse(storedUser); // Extract email from user object
 
     fetch(`/api/inquiries?email=${encodeURIComponent(Email)}`) // Send email as a query parameter
       .then((response) => {
@@ -48,7 +47,7 @@ function ContactForm() {
     if (!isFormValid()) return;
 
     const inquiry = {
-      Email: email,
+      Email: Email,
       Category: category,
       Subject: subject,
       Description: message,
@@ -129,7 +128,7 @@ function ContactForm() {
           <input
             type="email"
             id="email"
-            value={email}
+            value={Email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Your email"
           />
