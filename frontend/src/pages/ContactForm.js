@@ -41,7 +41,7 @@ function ContactForm() {
   const isEmailValid = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const isFormValid = () =>
-    email && subject && message && isEmailValid(email);
+    Email && subject && message && isEmailValid(Email);
 
   const handleSave = async () => {
     if (!isFormValid()) return;
@@ -132,7 +132,7 @@ function ContactForm() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Your email"
           />
-          {!isEmailValid(email) && email && (
+          {!isEmailValid(Email) && Email && (
             <small style={{ color: "red" }}>Invalid email format</small>
           )}
         </div>
