@@ -15,28 +15,27 @@ function ContactForm() {
   });
   const [showInquiries, setShowInquiries] = useState(false);
 
- // Fetch inquiries for the logged-in user's email
   useEffect(() => {
-   // Retrieve the logged-in user from local storage
+    // Retrieve the logged-in user from local storage
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setEmail(parsedUser.Email); // Pre-fill the email field
+  
+      // Fetch inquiries using the stored email
+      fetch(`/api/inquiries?email=${encodeURIComponent(parsedUser.Email)}`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then((data) => {
+          setInquiries(data); // Update inquiries state
+        })
+        .catch((error) => console.error("Error fetching inquiries:", error));
     }
-
-
-    fetch(`/api/inquiries?email=${encodeURIComponent(Email)}`) // Send email as a query parameter
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setInquiries(data); // Update inquiries state
-      })
-      .catch((error) => console.error("Error fetching inquiries:", error));
-  }, []);
+  }, []); // Empty dependency array
 
   const isEmailValid = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
