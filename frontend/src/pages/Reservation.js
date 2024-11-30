@@ -9,7 +9,10 @@ function Reservation() {
     const [courts, setCourts] = useState([]);
     const [userEmail, setUserEmail] = useState(null);
     const [sortField, setSortField] = useState("");
+    const [modalContent, setModalContent] = useState(null);
     const [sortOrder, setSortOrder] = useState("asc");
+    const [highlightedCells, setHighlightedCells] = useState({});
+
 
     const times = Array.from({ length: 15 }, (_, i) => `${String(8 + i).padStart(2, "0")}:00`);
 
@@ -52,7 +55,61 @@ function Reservation() {
             .catch((error) => console.error("Error fetching reservations:", error));
     };
 
-    const handleDateChange = (date) => setSelectedDate(date);
+    const fetchReservationsForDay = (date) => {
+        const formattedDate = date.toISOString().split("T")[0]; // Format date as YYYY-MM-DD
+        fetch(`/api/reservations/day?date=${formattedDate}`)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(setReservations)
+            .catch((error) => console.error("Error fetching reservations:", error));
+    };
+
+    const handleDateChange = (date) => {
+        setSelectedDate(date);
+        fetchReservationsForDay(date);
+    };
+
+    const getReservationStatus = (time, courtId) => {
+        const reservation = reservations.find(
+            (res) =>
+                res.CourtID === courtId &&
+                res.StartTime <= time &&
+                res.EndTime > time &&
+                new Date(res.Date).toDateString() === selectedDate.toDateString()
+        );
+        if (!reservation) return "Available";
+        return reservation.Email === userEmail ? "YourReservations" : "Reserved";
+    };
+
+    const handleCellClick = (time, courtId) => {
+        setHighlightedCells((prev) => ({
+            ...prev,
+            [`${time}-${courtId}`]: true,
+        }));
+
+        const reservation = reservations.find(
+            (res) =>
+                res.CourtID === courtId &&
+                res.StartTime <= time &&
+                res.EndTime > time &&
+                new Date(res.Date).toDateString() === selectedDate.toDateString()
+        );
+
+        setModalContent(
+            reservation
+                ? `Reservation Details:\nName: ${reservation.Name}\nCourt: ${reservation.CourtName}\nTime: ${time}`
+                : `No reservation exists for Court ${courtId} at ${time}`
+        );
+    };
+
+    const closeModal = () => {
+        setModalContent(null);
+    };
+
 
     const cancelReservation = async (id) => {
         const reason = prompt("Please provide a reason for cancellation:");
@@ -77,29 +134,6 @@ function Reservation() {
         }
     };
 
-    const isReserved = (time, courtId) => {
-        return reservations.some(
-            (reservation) =>
-                reservation.StartTime === time &&
-                reservation.CourtID === courtId &&
-                new Date(reservation.Date).toDateString() === selectedDate.toDateString()
-        );
-    };
-
-    /*const getReservationStatus = (time, courtId) => {
-        const reservation = reservations.find(
-            (res) =>
-                res.StartTime === time &&
-                res.CourtID === courtId &&
-                new Date(res.Date).toDateString() === selectedDate.toDateString()
-        );
-        if (!reservation) return "Available";
-        return reservation.Status === "Created"
-            ? "UserReserved"
-            : "OtherReserved";
-    };
-    */
-
     const sortReservations = (field) => {
         const newSortOrder = sortField === field && sortOrder === "asc" ? "desc" : "asc";
         setSortField(field);
@@ -112,6 +146,20 @@ function Reservation() {
         });
 
         setReservations(sortedReservations);
+    };
+
+    const formatDate = (date) => new Date(date).toLocaleDateString("en-GB");
+    const formatTime = (timeString) => {
+        try {
+            const date = new Date(timeString);
+            if (isNaN(date.getTime())) {
+                throw new Error("Invalid date");
+            }
+            return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        } catch (error) {
+            console.error("Invalid time format:", timeString);
+            return "Invalid Time";
+        }
     };
 
     return (
@@ -139,12 +187,20 @@ function Reservation() {
                     {times.map((time) => (
                         <tr key={time}>
                             <td className="hour-cell">{time}</td>
-                            {courts.map((court) => (
-                                <td
-                                    key={`${time}-${court.CourtID}`}
-                                    className={isReserved(time, court.CourtID) ? "reserved" : "available"}
-                                ></td>
-                            ))}
+                            {courts.map((court) => {
+                                const status = getReservationStatus(time, court.CourtID);
+                                return (
+                                    <td
+                                        key={`${time}-${court.CourtID}`}
+                                        className={`${status.toLowerCase()} ${
+                                            highlightedCells[`${time}-${court.CourtID}`]
+                                                ? "highlighted-cell"
+                                                : ""
+                                        }`}
+                                        onClick={() => handleCellClick(time, court.CourtID)}
+                                    ></td>
+                                );
+                            })}
                         </tr>
                     ))}
                 </tbody>
@@ -152,9 +208,20 @@ function Reservation() {
 
             <div className="legend">
                 <div className="legend-item available">Available</div>
-                <div className="legend-item user-reserved">Your Reservation</div>
+                <div className="legend-item user-reserved">Your Reservations</div>
                 <div className="legend-item other-reserved">Reserved</div>
             </div>
+
+            {modalContent && (
+                <div className="modal">
+                    <div className="modal-content">
+                        <span className="close" onClick={closeModal}>
+                            &times;
+                        </span>
+                        <p>{modalContent}</p>
+                    </div>
+                </div>
+            )}
 
             <hr className="divider" />
 
@@ -169,6 +236,7 @@ function Reservation() {
                                 <th onClick={() => sortReservations("Date")}>Date</th>
                                 <th onClick={() => sortReservations("StartTime")}>Start</th>
                                 <th>End</th>
+                                <th>Court</th>
                                 <th>Duration</th>
                                 <th onClick={() => sortReservations("Status")}>Status</th>
                                 <th className="action-column"></th>
@@ -179,9 +247,10 @@ function Reservation() {
                                 <tr key={reservation.ReservationID}>
                                     <td>{reservation.Name}</td>
                                     <td>{reservation.Email}</td>
-                                    <td>{new Date(reservation.Date).toLocaleDateString()}</td>
-                                    <td>{new Date(reservation.StartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
-                                    <td>{new Date(reservation.EndTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                                    <td>{formatDate(reservation.Date)}</td>
+                                    <td>{formatTime(reservation.StartTime)}</td>
+                                    <td>{formatTime(reservation.EndTime)}</td>
+                                    <td>{reservation.CourtName}</td>
                                     <td>{reservation.Duration} hours</td>
                                     <td>{reservation.Status}</td>
                                     <td>

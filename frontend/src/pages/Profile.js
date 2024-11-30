@@ -51,7 +51,6 @@ function Profile() {
       if (!response.ok) throw new Error(await response.text());
 
       const data = await response.json();
-      console.log("data:", data);
       setLoggedInUser(data);
       setName(data.Name);
       setEmail(data.Email);

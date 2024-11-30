@@ -87,21 +87,42 @@ router.post("/reservations", async (req, res) => {
     }
 });
 
+// Helper functions for formatting
+const formatDate = (date) => new Date(date).toLocaleDateString("en-GB");
+const formatTime = (timeString) => {
+    try {
+        const date = new Date(timeString);
+        if (isNaN(date.getTime())) {
+            throw new Error("Invalid date");
+        }
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch (error) {
+        console.error("Invalid time format:", timeString);
+        return "Invalid Time";
+    }
+};
+
 // Cancel reservation
 router.put("/reservations/:id/cancel", async (req, res) => {
     const { id } = req.params;
-    const { cancellationReason } = req.body;
+    const { CancellationReason } = req.body;
 
-    if (!cancellationReason) {
+    if (!CancellationReason) {
         return res.status(400).send("Cancellation reason is required.");
     }
 
     try {
         const pool = await connectToDatabase();
 
+        // Fetch reservation details, including CourtName
         const reservationQuery = await pool.request()
             .input("ReservationID", sql.Int, id)
-            .query("SELECT * FROM Reservation WHERE ReservationID = @ReservationID");
+            .query(`
+                SELECT r.*, c.CourtName
+                FROM Reservation r
+                JOIN Court c ON r.CourtID = c.CourtID
+                WHERE r.ReservationID = @ReservationID
+            `);
 
         if (reservationQuery.recordset.length === 0) {
             return res.status(404).send("Reservation not found.");
@@ -109,9 +130,10 @@ router.put("/reservations/:id/cancel", async (req, res) => {
 
         const reservation = reservationQuery.recordset[0];
 
+        // Update reservation status to "Cancelled"
         await pool.request()
             .input("ReservationID", sql.Int, id)
-            .input("CancellationReason", sql.NVarChar, cancellationReason)
+            .input("CancellationReason", sql.NVarChar, CancellationReason)
             .input("Status", sql.NVarChar, "Cancelled")
             .query(`
                 UPDATE Reservation
@@ -119,12 +141,12 @@ router.put("/reservations/:id/cancel", async (req, res) => {
                 WHERE ReservationID = @ReservationID
             `);
 
-        // Send notification email
+        // Send notification email with formatted dates and times
         await transporter.sendMail({
-            from: process.env.EMAIL_USER,
+            from: `"4Locos Padel" <${process.env.EMAIL}>`,
             to: reservation.Email,
             subject: "Reservation Cancelled",
-            text: `Your reservation for ${reservation.Court} on ${reservation.Date} from ${reservation.StartTime} to ${reservation.EndTime} has been cancelled.\nReason: ${cancellationReason}`,
+            text: `Your reservation for ${reservation.CourtName} on ${formatDate(reservation.Date)} from ${formatTime(reservation.StartTime)} to ${formatTime(reservation.EndTime)} has been cancelled.\nReason: ${CancellationReason}`,
         });
 
         res.status(200).send("Reservation cancelled successfully.");
@@ -134,7 +156,6 @@ router.put("/reservations/:id/cancel", async (req, res) => {
     }
 });
 
-// Fetch reservations for a specific user
 router.get("/reservations", async (req, res) => {
     const { email } = req.query;
 
@@ -149,16 +170,47 @@ router.get("/reservations", async (req, res) => {
             .request()
             .input("Email", sql.NVarChar, email)
             .query(`
-                SELECT ReservationID, Name, Email, Date, StartTime, EndTime, Status, CourtID, CancellationReason,
-                DATEDIFF(MINUTE, StartTime, EndTime) / 60.0 AS Duration
-                FROM Reservation
-                WHERE Email = @Email
+                SELECT 
+                    R.ReservationID, R.Name, R.Email, R.Date, R.StartTime, R.EndTime, 
+                    R.Status, R.CancellationReason, C.CourtName,
+                    DATEDIFF(MINUTE, R.StartTime, R.EndTime) / 60.0 AS Duration
+                FROM Reservation R
+                INNER JOIN Court C ON R.CourtID = C.CourtID
+                WHERE R.Email = @Email
             `);
 
-        return res.status(200).json(queryResult.recordset);
+        res.status(200).json(queryResult.recordset);
     } catch (error) {
         console.error("Error fetching reservations:", error);
-        return res.status(500).send("Internal server error.");
+        res.status(500).send("Internal server error.");
+    }
+});
+
+router.get("/reservations/day", async (req, res) => {
+    const { date } = req.query;
+
+    if (!date) {
+        return res.status(400).send("Date is required.");
+    }
+
+    try {
+        const pool = await connectToDatabase();
+
+        const queryResult = await pool
+            .request()
+            .input("Date", sql.Date, date)
+            .query(`
+                SELECT R.ReservationID, R.Name, R.Email, R.Date, R.StartTime, R.EndTime, 
+                       R.Status, R.CancellationReason, C.CourtName, R.CourtID
+                FROM Reservation R
+                INNER JOIN Court C ON R.CourtID = C.CourtID
+                WHERE R.Date = @Date
+            `);
+
+        res.status(200).json(queryResult.recordset);
+    } catch (error) {
+        console.error("Error fetching reservations for the day:", error);
+        res.status(500).send("Internal server error.");
     }
 });
 
