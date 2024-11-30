@@ -7,6 +7,7 @@
     width: calc(80% - 50px);
     margin: 0 auto;
     background-color: #323f5e;
+    height: 100%;
 }
 
 .date-picker {
@@ -32,27 +33,50 @@
     color: #e7ff7d;
 }
 
-/* Timetable styling */
+/* General Timetable Styling */
 .reservation-table {
     border-collapse: collapse;
     width: 100%;
     margin-top: 20px;
     color: #e7ff7d;
+    table-layout: fixed; /* Ensure equal column widths by default */
 }
 
+/* Table headers and cells */
 .reservation-table th,
 .reservation-table td {
-    padding: 10px;
+    padding: 5px;
     text-align: center;
     border: 1px solid #e7ff7d;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
 }
 
+/* Table header styling */
 .reservation-table th {
     background-color: #323f5e;
     color: #e7ff7d;
+    font-size: 0.8rem;
 }
 
-/* Timetable Styling */
+/* Table cells styling */
+.reservation-table td {
+    font-size: 0.7rem; 
+}
+
+/* Table cells styling */
+.reservation-table tr {
+    width: 100%;
+}
+
+/* Table container */
+.reservation-table-container {
+    overflow-x: auto;
+    margin: 0 auto;
+    max-width: 100%;
+}
+
 .reserved {
     background-color: #ff5555;
     cursor: pointer;
@@ -60,6 +84,8 @@
 
 .available {
     background-color: #e7ff7d;
+    border: #323f5e 1px solid;
+    color: #323f5e;
     cursor: pointer;
 }
 
@@ -75,6 +101,13 @@
     border: 2px solid #e7ff7d;
 }
 
+.hour-cell {
+    background-color: #323f5e;
+    color: #e7ff7d;
+    cursor: not-allowed;
+}
+
+/* Modal styling */
 .modal {
     position: fixed;
     z-index: 1000;
@@ -111,12 +144,6 @@
     color: #ff5555;
 }
 
-.hour-cell {
-    background-color: #323f5e;
-    color: #e7ff7d;
-    cursor: not-allowed;
-}
-
 /* Legend styling */
 .legend {
     margin-top: 20px;
@@ -135,6 +162,7 @@
 
 .legend-item.available {
     background-color: #e7ff7d;
+    border: #323f5e 1px solid;
     color: #323f5e;
 }
 
@@ -166,11 +194,11 @@
 }
 
 .reservations-list td {
-    padding: 10px;
+    padding: 8px;
     text-align: center;
     border: none;
     border-bottom: 1px solid #e7ff7d;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
 }
 
 .reservations-list td:last-child {
@@ -205,26 +233,54 @@
 /* Responsive design for smaller screens */
 @media (max-width: 768px) {
     .reservation-page {
-        width: calc(98% - 35px);
+        padding: 5px;
+        overflow-x: scroll;
+        margin: 0; /* Reset any default margin */
+        text-align: left; /* Ensure text aligns left inside */
+        align-items: flex-start; /* Align flex items (if any) to the left */
+        width: 100%;
     }
 
-    .date-picker .react-datepicker-wrapper {
-        width: 97%;
+    .reservation-table-container {
+        margin: 0 auto;
+        max-width: 100%;
+        overflow-x: scroll;
+    }
+
+
+    .reservation-table th,
+    .reservation-table td {
+        padding: 3px;
+        max-width: 60px;
+        min-width: 25px;
+        font-size: 0.6rem;
+    }
+
+
+    .date-picker .react-datepicker__input-container input {
+        font-size: 0.6rem;
+        padding: 10px;
+    }
+
+    .reservations-list {
+        font-size: 0.5rem;
+    }
+
+    .reservations-list td {
+        padding: 5px;
+        font-size: 0.5rem;
     }
 
     .legend {
         flex-direction: row;
-        align-items: center;
-        gap: 10px;
+        gap: 7px;
     }
 
     .legend-item {
-        font-size: 0.9rem;
-        padding: 5px 8px;
+        font-size: 0.4rem;
     }
 
     .cancel-button {
         padding: 3px 7px;
-        font-size: 0.8rem;
     }
 }

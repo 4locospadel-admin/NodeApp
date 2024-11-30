@@ -7,7 +7,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    height: 100vh;
+    height: 100%;
 }
 
 .sidebar h2 {
@@ -20,7 +20,7 @@
     align-items: center; /* Center items horizontally */
     gap: 50px; /* Add vertical spacing between icons */
     padding: 0;
-    margin-top: 25px;
+    margin-top: 20px;
     list-style: none;
 }
 

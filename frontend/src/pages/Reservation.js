@@ -90,7 +90,7 @@ function Reservation() {
             ...prev,
             [`${time}-${courtId}`]: true,
         }));
-
+    
         const reservation = reservations.find(
             (res) =>
                 res.CourtID === courtId &&
@@ -98,7 +98,7 @@ function Reservation() {
                 res.EndTime > time &&
                 new Date(res.Date).toDateString() === selectedDate.toDateString()
         );
-
+    
         setModalContent(
             reservation
                 ? `Reservation Details:\nName: ${reservation.Name}\nCourt: ${reservation.CourtName}\nTime: ${time}`
@@ -107,7 +107,11 @@ function Reservation() {
     };
 
     const closeModal = () => {
+        // Reset modal content and remove highlighted cell
         setModalContent(null);
+    
+        // Reset the highlighted cells state
+        setHighlightedCells({});
     };
 
 
