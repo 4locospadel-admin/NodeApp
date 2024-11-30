@@ -12,9 +12,15 @@ function Reservation() {
     const [modalContent, setModalContent] = useState(null);
     const [sortOrder, setSortOrder] = useState("asc");
     const [highlightedCells, setHighlightedCells] = useState({});
-
+    const [expandedRows, setExpandedRows] = useState([]);
 
     const times = Array.from({ length: 15 }, (_, i) => `${String(8 + i).padStart(2, "0")}:00`);
+
+    const toggleRow = (index) => {
+        setExpandedRows((prev) =>
+            prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+        );
+    };    
 
     useEffect(() => {
         // Fetch logged-in user from local storage
@@ -178,6 +184,12 @@ function Reservation() {
                 />
             </div>
 
+            <div className="legend">
+                <div className="legend-item available">Available</div>
+                <div className="legend-item user-reserved">Your Reservations</div>
+                <div className="legend-item other-reserved">Reserved</div>
+            </div>
+
             <table className="reservation-table">
                 <thead>
                     <tr>
@@ -210,12 +222,6 @@ function Reservation() {
                 </tbody>
             </table>
 
-            <div className="legend">
-                <div className="legend-item available">Available</div>
-                <div className="legend-item user-reserved">Your Reservations</div>
-                <div className="legend-item other-reserved">Reserved</div>
-            </div>
-
             {modalContent && (
                 <div className="modal">
                     <div className="modal-content">
@@ -235,39 +241,61 @@ function Reservation() {
                     <table className="reservations-list">
                         <thead>
                             <tr>
-                                <th onClick={() => sortReservations("Name")}>Name</th>
-                                <th>Email</th>
                                 <th onClick={() => sortReservations("Date")}>Date</th>
                                 <th onClick={() => sortReservations("StartTime")}>Start</th>
                                 <th>End</th>
-                                <th>Court</th>
-                                <th>Duration</th>
+                                <th onClick={() => sortReservations("CourtName")}>Court</th>
                                 <th onClick={() => sortReservations("Status")}>Status</th>
-                                <th className="action-column"></th>
                             </tr>
                         </thead>
                         <tbody>
-                            {reservations.map((reservation) => (
-                                <tr key={reservation.ReservationID}>
-                                    <td>{reservation.Name}</td>
-                                    <td>{reservation.Email}</td>
-                                    <td>{formatDate(reservation.Date)}</td>
-                                    <td>{formatTime(reservation.StartTime)}</td>
-                                    <td>{formatTime(reservation.EndTime)}</td>
-                                    <td>{reservation.CourtName}</td>
-                                    <td>{reservation.Duration} hours</td>
-                                    <td>{reservation.Status}</td>
-                                    <td>
-                                        {reservation.Status === "Created" && (
-                                            <button
-                                                className="cancel-button"
-                                                onClick={() => cancelReservation(reservation.ReservationID)}
-                                            >
-                                                Cancel
-                                            </button>
-                                        )}
-                                    </td>
-                                </tr>
+                            {reservations.map((reservation, index) => (
+                                <React.Fragment key={reservation.ReservationID}>
+                                    {/* Top-level row */}
+                                    <tr onClick={() => toggleRow(index)}>
+                                        <td>{formatDate(reservation.Date)}</td>
+                                        <td>{formatTime(reservation.StartTime)}</td>
+                                        <td>{formatTime(reservation.EndTime)}</td>
+                                        <td>{reservation.CourtName}</td>
+                                        <td>{reservation.Status}</td>
+                                    </tr>
+
+                                    {/* Expandable row */}
+                                    {expandedRows.includes(index) && (
+                                        <tr className="expanded-row">
+                                            <td colSpan="5">
+                                                <div className="expanded-content">
+                                                    <p>
+                                                        <strong>Name:</strong> {reservation.Name}
+                                                    </p>
+                                                    <p>
+                                                        <strong>Email:</strong> {reservation.Email}
+                                                    </p>
+                                                    <p>
+                                                        <strong>Duration:</strong> {reservation.Duration} hours
+                                                    </p>
+                                                    {reservation.Status === "Cancelled" && (
+                                                        <p>
+                                                            <strong>Cancellation Reason:</strong>{" "}
+                                                            {reservation.CancellationReason}
+                                                        </p>
+                                                    )}
+                                                    {reservation.Status === "Created" && (
+                                                        <button
+                                                            className="cancel-button"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation(); // Prevent row collapse
+                                                                cancelReservation(reservation.ReservationID);
+                                                            }}
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </React.Fragment>
                             ))}
                         </tbody>
                     </table>
