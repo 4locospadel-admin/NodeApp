@@ -1,16 +1,38 @@
+/* General page styling */
 .reservation-page {
     display: flex;
     flex-direction: column;
     padding: 20px;
     color: #e7ff7d;
-    width: calc(70% - 50px);
-    margin-left: 50px;
+    width: calc(80% - 50px);
+    margin: 0 auto;
+    background-color: #323f5e;
 }
 
 .date-picker {
     margin-bottom: 20px;
+    text-align: left;
+    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
 }
 
+.date-picker .react-datepicker-wrapper {
+    width: 50%;
+}
+
+.date-picker .react-datepicker__input-container input {
+    width: 100%;
+    font-size: 1.0rem;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #e7ff7d;
+    background-color: #323f5e;
+    color: #e7ff7d;
+}
+
+/* Timetable styling */
 .reservation-table {
     border-collapse: collapse;
     width: 100%;
@@ -22,49 +44,148 @@
 .reservation-table td {
     padding: 10px;
     text-align: center;
+    border: 1px solid #e7ff7d;
 }
 
 .reservation-table th {
     background-color: #323f5e;
-    border: 1px solid #e7ff7d;
     color: #e7ff7d;
 }
 
-.free {
+.available {
     background-color: #e7ff7d;
-    border: 1px solid #323f5e;
+    color: #323f5e;
     cursor: pointer;
 }
 
-.hour-cell {
-    border: 1px solid #e7ff7d;
-    cursor: not-allowed;
-}
-
-.occupied {
-    background-color: #323f5e;
-    cursor: not-allowed;
-}
-
-.reservation-form,
-.confirmation-modal {
+.userreserved {
     background-color: #323f5e;
     color: #e7ff7d;
-    padding: 20px;
-    border-radius: 5px;
-    text-align: center;
-    position: fixed;
-    top: 30%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1000;
+    border: 1px solid #e7ff7d;
+    cursor: default;
 }
 
-/* Media Query for Mobile Devices */
+.otherreserved {
+    background-color: #ff5555;
+    color: #e7ff7d;
+    border: 1px solid #e7ff7d;
+    cursor: default;
+}
+
+.hour-cell {
+    background-color: #323f5e;
+    color: #e7ff7d;
+    cursor: not-allowed;
+}
+
+/* Legend styling */
+.legend {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+.legend-item.available {
+    background-color: #e7ff7d;
+    color: #323f5e;
+}
+
+.legend-item.user-reserved {
+    background-color: #323f5e;
+    color: #e7ff7d;
+    border: 1px solid #e7ff7d;
+}
+
+.legend-item.other-reserved {
+    background-color: #ff5555;
+    color: #e7ff7d;
+    border: 1px solid #e7ff7d;
+}
+
+/* Reservation list styling */
+.reservations-list {
+    margin-top: 20px;
+    border-collapse: collapse;
+    width: 100%;
+    color: #e7ff7d;
+}
+
+.reservations-list th {
+    background-color: #323f5e;
+    color: #e7ff7d;
+    border-bottom: 1px solid #e7ff7d;
+    cursor: pointer;
+}
+
+.reservations-list td {
+    padding: 10px;
+    text-align: center;
+    border: none;
+    border-bottom: 1px solid #e7ff7d;
+    font-size: 0.8rem;
+}
+
+.reservations-list td:last-child {
+    border: none;
+    text-align: right;
+}
+
+.action-column {
+    display: none;
+}
+
+/* Cancel button styling */
+.cancel-button {
+    background-color: #e7ff7d;
+    color: #323f5e;
+    border: 1px solid #e7ff7d;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.cancel-button:hover {
+    background-color: #323f5e;
+    color: #e7ff7d;
+}
+
+/* Hover row effect */
+.hover-row:hover .cancel-button {
+    display: inline-block;
+}
+
+/* Responsive design for smaller screens */
 @media (max-width: 768px) {
     .reservation-page {
-        width: calc(100% - 50px);
-        margin-left: 0;
-        padding: 10px;
+        width: calc(98% - 35px);
+    }
+
+    .date-picker .react-datepicker-wrapper {
+        width: 97%;
+    }
+
+    .legend {
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .legend-item {
+        font-size: 0.9rem;
+        padding: 5px 8px;
+    }
+
+    .cancel-button {
+        padding: 3px 7px;
+        font-size: 0.8rem;
     }
 }

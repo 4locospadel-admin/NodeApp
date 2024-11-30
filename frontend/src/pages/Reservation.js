@@ -5,79 +5,124 @@ import "./Reservation.css";
 
 function Reservation() {
     const [selectedDate, setSelectedDate] = useState(new Date());
-    const [reservations, setReservations] = useState([]); // Replace with fetched data
-    const [showForm, setShowForm] = useState(false);
-    const [formData, setFormData] = useState({
-        email: "",
-        startTime: "",
-        durationHours: 0,
-        durationMinutes: 30,
-        court: "",
-    });
-    const [confirmDetails, setConfirmDetails] = useState(null);
+    const [reservations, setReservations] = useState([]);
+    const [courts, setCourts] = useState([]);
+    const [userEmail, setUserEmail] = useState(null);
+    const [sortField, setSortField] = useState("");
+    const [sortOrder, setSortOrder] = useState("asc");
+
+    const times = Array.from({ length: 15 }, (_, i) => `${String(8 + i).padStart(2, "0")}:00`);
 
     useEffect(() => {
-        alert("This page is still under development. Most of the functions are not available.");
-    }, []); // The empty dependency array ensures this runs only once when the component mounts.
+        // Fetch logged-in user from local storage
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+            const parsedUser = JSON.parse(storedUser);
+            setUserEmail(parsedUser.Email);
+        }
 
-    const courts = ["Court 1", "Court 2", "Court 3"]; // Replace with backend data
-    const times = Array.from({ length: 33 }, (_, i) => {
-        const hours = Math.floor(i / 2) + 6;
-        const minutes = i % 2 === 0 ? "00" : "30";
-        return `${hours}:${minutes}`;
-    });
+        fetchCourts();
+
+        if (storedUser) {
+            fetchReservations(JSON.parse(storedUser).Email);
+        }
+    }, []);
+
+    const fetchCourts = () => {
+        fetch("/api/courts")
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(setCourts)
+            .catch((error) => console.error("Error fetching courts:", error));
+    };
+
+    const fetchReservations = (email) => {
+        fetch(`/api/reservations?email=${encodeURIComponent(email)}`)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(setReservations)
+            .catch((error) => console.error("Error fetching reservations:", error));
+    };
 
     const handleDateChange = (date) => setSelectedDate(date);
 
-    const handleCellClick = (time, court) => {
-        setFormData({ ...formData, startTime: time, court });
-        setShowForm(true);
+    const cancelReservation = async (id) => {
+        const reason = prompt("Please provide a reason for cancellation:");
+        if (!reason) {
+            alert("Cancellation reason is required.");
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/reservations/${id}/cancel`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ CancellationReason: reason }),
+            });
+
+            if (!response.ok) throw new Error(await response.text());
+
+            alert("Reservation cancelled successfully.");
+            fetchReservations(userEmail); // Refresh reservations
+        } catch (error) {
+            console.error("Error cancelling reservation:", error);
+        }
     };
 
-    const handleFormChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
-    };
-
-    const handleSave = () => {
-        const duration =
-            parseInt(formData.durationHours) * 60 +
-            parseInt(formData.durationMinutes);
-        const endTime = new Date(
-            new Date(selectedDate).setMinutes(
-                new Date(selectedDate).getMinutes() + duration
-            )
-        ).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-        setConfirmDetails({
-            court: formData.court,
-            startTime: formData.startTime,
-            endTime,
-        });
-    };
-
-    const handleConfirm = () => {
-        // Simulate saving
-        setReservations([...reservations, confirmDetails]);
-        setShowForm(false);
-        setConfirmDetails(null);
-    };
-
-    const isReserved = (time, court) =>
-        reservations.some(
+    const isReserved = (time, courtId) => {
+        return reservations.some(
             (reservation) =>
-                reservation.startTime === time && reservation.court === court
+                reservation.StartTime === time &&
+                reservation.CourtID === courtId &&
+                new Date(reservation.Date).toDateString() === selectedDate.toDateString()
         );
+    };
+
+    /*const getReservationStatus = (time, courtId) => {
+        const reservation = reservations.find(
+            (res) =>
+                res.StartTime === time &&
+                res.CourtID === courtId &&
+                new Date(res.Date).toDateString() === selectedDate.toDateString()
+        );
+        if (!reservation) return "Available";
+        return reservation.Status === "Created"
+            ? "UserReserved"
+            : "OtherReserved";
+    };
+    */
+
+    const sortReservations = (field) => {
+        const newSortOrder = sortField === field && sortOrder === "asc" ? "desc" : "asc";
+        setSortField(field);
+        setSortOrder(newSortOrder);
+
+        const sortedReservations = [...reservations].sort((a, b) => {
+            const valueA = field === "Date" ? new Date(a[field]) : a[field];
+            const valueB = field === "Date" ? new Date(b[field]) : b[field];
+            return (valueA > valueB ? 1 : -1) * (newSortOrder === "asc" ? 1 : -1);
+        });
+
+        setReservations(sortedReservations);
+    };
 
     return (
         <div className="reservation-page">
             <div className="date-picker">
                 <DatePicker
                     selected={selectedDate}
-                    onChange={handleDateChange}
+                    onChange={(date) => handleDateChange(date)}
                     minDate={new Date()}
                     maxDate={new Date().setMonth(new Date().getMonth() + 2)}
-                    dateFormat="EEEE, MMMM d, yyyy" // Includes the day of the week
+                    dateFormat="EEEE, MMMM d, yyyy"
                 />
             </div>
 
@@ -86,7 +131,7 @@ function Reservation() {
                     <tr>
                         <th>Hour</th>
                         {courts.map((court) => (
-                            <th key={court}>{court}</th>
+                            <th key={court.CourtID}>{court.CourtName}</th>
                         ))}
                     </tr>
                 </thead>
@@ -96,13 +141,8 @@ function Reservation() {
                             <td className="hour-cell">{time}</td>
                             {courts.map((court) => (
                                 <td
-                                    key={`${time}-${court}`}
-                                    className="free"
-                                    onClick={
-                                        !isReserved(time, court)
-                                            ? () => handleCellClick(time, court)
-                                            : null
-                                    }
+                                    key={`${time}-${court.CourtID}`}
+                                    className={isReserved(time, court.CourtID) ? "reserved" : "available"}
                                 ></td>
                             ))}
                         </tr>
@@ -110,74 +150,57 @@ function Reservation() {
                 </tbody>
             </table>
 
-            {showForm && (
-                <div className="reservation-form">
-                    <h3>Create Reservation</h3>
-                    <label>
-                        Email:
-                        <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleFormChange}
-                        />
-                    </label>
-                    <label>
-                        Start Time:
-                        <input
-                            type="text"
-                            name="startTime"
-                            value={formData.startTime}
-                            disabled
-                        />
-                    </label>
-                    <label>
-                        Court:
-                        <input type="text" name="court" value={formData.court} disabled />
-                    </label>
-                    <label>
-                        Duration:
-                        <div className="duration-picker">
-                            <select
-                                name="durationHours"
-                                value={formData.durationHours}
-                                onChange={handleFormChange}
-                            >
-                                {Array.from({ length: 17 }, (_, i) => i).map(
-                                    (hour) => (
-                                        <option key={hour} value={hour}>
-                                            {hour} Hours
-                                        </option>
-                                    )
-                                )}
-                            </select>
-                            <select
-                                name="durationMinutes"
-                                value={formData.durationMinutes}
-                                onChange={handleFormChange}
-                            >
-                                <option value={0}>00 Minutes</option>
-                                <option value={30}>30 Minutes</option>
-                            </select>
-                        </div>
-                    </label>
-                    <button onClick={handleSave}>Save</button>
-                    <button onClick={() => setShowForm(false)}>Cancel</button>
-                </div>
-            )}
+            <div className="legend">
+                <div className="legend-item available">Available</div>
+                <div className="legend-item user-reserved">Your Reservation</div>
+                <div className="legend-item other-reserved">Reserved</div>
+            </div>
 
-            {confirmDetails && (
-                <div className="confirmation-modal">
-                    <h3>Confirm Reservation</h3>
-                    <p>
-                        Are you sure you want to reserve{" "}
-                        <strong>{confirmDetails.court}</strong> from{" "}
-                        <strong>{confirmDetails.startTime}</strong> to{" "}
-                        <strong>{confirmDetails.endTime}</strong>?
-                    </p>
-                    <button onClick={handleConfirm}>Confirm</button>
-                    <button onClick={() => setConfirmDetails(null)}>Cancel</button>
-                </div>
+            <hr className="divider" />
+
+            {userEmail ? (
+                <>
+                    <h3>Your Reservations</h3>
+                    <table className="reservations-list">
+                        <thead>
+                            <tr>
+                                <th onClick={() => sortReservations("Name")}>Name</th>
+                                <th>Email</th>
+                                <th onClick={() => sortReservations("Date")}>Date</th>
+                                <th onClick={() => sortReservations("StartTime")}>Start</th>
+                                <th>End</th>
+                                <th>Duration</th>
+                                <th onClick={() => sortReservations("Status")}>Status</th>
+                                <th className="action-column"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {reservations.map((reservation) => (
+                                <tr key={reservation.ReservationID}>
+                                    <td>{reservation.Name}</td>
+                                    <td>{reservation.Email}</td>
+                                    <td>{new Date(reservation.Date).toLocaleDateString()}</td>
+                                    <td>{new Date(reservation.StartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                                    <td>{new Date(reservation.EndTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                                    <td>{reservation.Duration} hours</td>
+                                    <td>{reservation.Status}</td>
+                                    <td>
+                                        {reservation.Status === "Created" && (
+                                            <button
+                                                className="cancel-button"
+                                                onClick={() => cancelReservation(reservation.ReservationID)}
+                                            >
+                                                Cancel
+                                            </button>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </>
+            ) : (
+                <p>Please log in to view your reservations.</p>
             )}
         </div>
     );

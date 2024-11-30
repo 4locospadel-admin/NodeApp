@@ -3,6 +3,7 @@ const path = require('path');
 const { connectToDatabase } = require('./dbConnection');
 const userController = require('./userController');
 const inquiryController = require('./inquiryController');
+const reservationController = require('./reservationController');
 
 require('dotenv').config(({ override: true }));
 
@@ -18,6 +19,7 @@ app.use(express.static(path.join(__dirname, 'build')));
 // API routes
 app.use('/api', userController);
 app.use('/api', inquiryController);
+app.use('/api', reservationController)
 
 // Handle any requests that don’t match the API routes by serving index.html
 app.get('*', (req, res) => {

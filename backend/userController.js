@@ -33,7 +33,7 @@ router.post("/signup", async (req, res) => {
       .input("Password", sql.NVarChar, hashedPassword)
       .query("INSERT INTO [User] (Name, Email, Password) VALUES (@Name, @Email, @Password)");
 
-      res.status(201).json({ message: "User registered successfully." });
+      res.status(201).json({ message: "User registered successfully.", Email, Name });
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal server error.");

@@ -5,13 +5,13 @@ function Profile() {
   const [isLogin, setIsLogin] = useState(true); // Toggle between login and sign-up
   const [Email, setEmail] = useState("");
   const [Password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [Name, setName] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [newConfirmPassword, setNewConfirmPassword] = useState("");
   const [loggedInUser, setLoggedInUser] = useState(null);
 
   useEffect(() => {
-    // Fetch user data from local storage or backend
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const user = JSON.parse(storedUser);
@@ -31,6 +31,16 @@ function Profile() {
       return;
     }
 
+    if (!isLogin && Password !== confirmPassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+
+    if (Password.length < 5) {
+      alert("Password must be at least 5 characters long.");
+      return;
+    }
+
     try {
       const response = await fetch(`/api/${isLogin ? "login" : "signup"}`, {
         method: "POST",
@@ -41,11 +51,12 @@ function Profile() {
       if (!response.ok) throw new Error(await response.text());
 
       const data = await response.json();
+      console.log("data:", data);
       setLoggedInUser(data);
-      setName(data.Name); // Set the user's Name
-      localStorage.setItem("user", JSON.stringify(data)); // Store user info locally
-      localStorage.setItem("token", data.token); // Store JWT for later use
-      alert(`${isLogin ? "Logged in" : "Signed up"} successfully!`);
+      setName(data.Name);
+      setEmail(data.Email);
+      localStorage.setItem("user", JSON.stringify(data));
+      localStorage.setItem("token", data.token);
     } catch (err) {
       console.error(err);
       alert(err.message);
@@ -53,8 +64,13 @@ function Profile() {
   };
 
   const handleSaveChanges = async () => {
-    if (newPassword && newPassword !== confirmPassword) {
+    if (newPassword && newPassword !== newConfirmPassword) {
       alert("Passwords do not match.");
+      return;
+    }
+
+    if (newPassword && newPassword.length < 5) {
+      alert("Password must be at least 5 characters long.");
       return;
     }
 
@@ -68,7 +84,6 @@ function Profile() {
         body: JSON.stringify({
           Name: Name !== loggedInUser.Name ? Name : undefined,
           newPassword: newPassword || undefined,
-          Email: Email ? Email : undefined
         }),
       });
 
@@ -78,7 +93,7 @@ function Profile() {
       setLoggedInUser((prev) => ({ ...prev, Name: data.Name }));
       localStorage.setItem("user", JSON.stringify({ ...loggedInUser, Name: data.Name }));
       setNewPassword("");
-      setConfirmPassword("");
+      setNewConfirmPassword("");
       alert("Profile updated successfully!");
     } catch (err) {
       console.error(err);
@@ -156,7 +171,20 @@ function Profile() {
                 required
                 minLength="5"
               />
+              <small>Password must be at least 5 characters long.</small>
             </div>
+            {!isLogin && (
+              <div>
+                <label>Confirm Password</label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm Your Password"
+                  required
+                />
+              </div>
+            )}
             <button type="submit">{isLogin ? "Log In" : "Sign Up"}</button>
           </form>
           <div className="auth-buttons">
@@ -187,20 +215,21 @@ function Profile() {
               />
             </div>
             <div>
-              <label>NEW Password:</label>
+              <label>New Password:</label>
               <input
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="New Password"
               />
+              <small>Password must be at least 5 characters long.</small>
             </div>
             <div>
-              <label>CONFIRM Password:</label>
+              <label>Confirm New Password:</label>
               <input
                 type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                value={newConfirmPassword}
+                onChange={(e) => setNewConfirmPassword(e.target.value)}
                 placeholder="Confirm New Password"
               />
             </div>
