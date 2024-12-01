@@ -61,8 +61,8 @@ body, html {
     }
     .home-button {
         width: 80%; /* Make buttons wider on smaller screens */
+        height: 50px;
         font-size: 1.2rem; /* Slightly smaller font size */
-        height: 40px; /* Reduce button height */
         padding: 10px 15px; /* Adjust padding for smaller buttons */
         border: 3px solid #e7ff7d; /* Light greenish-yellow border */
     }
