@@ -10,6 +10,9 @@ function Profile() {
   const [newPassword, setNewPassword] = useState("");
   const [newConfirmPassword, setNewConfirmPassword] = useState("");
   const [loggedInUser, setLoggedInUser] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
+
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -22,6 +25,14 @@ function Profile() {
   }, []);
 
   const handleToggle = () => setIsLogin(!isLogin);
+
+  const toggleEdit = () => {
+    setIsEditing((prev) => !prev);
+    if (isEditing) {
+      setNewPassword("");
+      setNewConfirmPassword("");
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -51,11 +62,12 @@ function Profile() {
       if (!response.ok) throw new Error(await response.text());
 
       const data = await response.json();
+      // Save token and user info immediately after sign-up
+      localStorage.setItem("user", JSON.stringify(data));
+      localStorage.setItem("token", data.token);
       setLoggedInUser(data);
       setName(data.Name);
       setEmail(data.Email);
-      localStorage.setItem("user", JSON.stringify(data));
-      localStorage.setItem("token", data.token);
     } catch (err) {
       console.error(err);
       alert(err.message);
@@ -67,27 +79,42 @@ function Profile() {
       alert("Passwords do not match.");
       return;
     }
-
+  
     if (newPassword && newPassword.length < 5) {
       alert("Password must be at least 5 characters long.");
       return;
     }
-
+    console.log("user:", loggedInUser);
+  
+    const token = localStorage.getItem("token");
+    console.log("token:", token, "name", Name, "pass", newPassword);
+    if (!token) {
+      alert("You must be logged in to update your profile.");
+      return;
+    }
+  
     try {
+      const trimmedName = Name.trim();
+      const trimmedPassword = newPassword?.trim();
+  
       const response = await fetch("/api/user/update", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          Name: Name !== loggedInUser.Name ? Name : undefined,
-          newPassword: newPassword || undefined,
+          Name: trimmedName !== loggedInUser.Name ? trimmedName : undefined,
+          newPassword: trimmedPassword || undefined,
         }),
       });
-
-      if (!response.ok) throw new Error(await response.text());
-
+  
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        alert(`Error: ${response.status} - ${errorMessage}`);
+        return;
+      }
+  
       const data = await response.json();
       setLoggedInUser((prev) => ({ ...prev, Name: data.Name }));
       localStorage.setItem("user", JSON.stringify({ ...loggedInUser, Name: data.Name }));
@@ -95,8 +122,8 @@ function Profile() {
       setNewConfirmPassword("");
       alert("Profile updated successfully!");
     } catch (err) {
-      console.error(err);
-      alert(err.message);
+      console.error("Error updating profile:", err);
+      alert("An error occurred while updating your profile. Please try again.");
     }
   };
 
@@ -210,31 +237,40 @@ function Profile() {
                 type="text"
                 value={Name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder={loggedInUser.Name}
+                disabled={!isEditing} // Disable the Name field unless editing
               />
             </div>
-            <div>
-              <label>New Password:</label>
-              <input
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="New Password"
-              />
-              <small>Password must be at least 5 characters long.</small>
-            </div>
-            <div>
-              <label>Confirm New Password:</label>
-              <input
-                type="password"
-                value={newConfirmPassword}
-                onChange={(e) => setNewConfirmPassword(e.target.value)}
-                placeholder="Confirm New Password"
-              />
-            </div>
-            <button onClick={handleSaveChanges} className="save-changes-button">
-              Save Changes
+            {isEditing && (
+              <>
+                <div>
+                  <label>New Password:</label>
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="New Password"
+                  />
+                  <small>Password must be at least 5 characters long.</small>
+                </div>
+                <div>
+                  <label>Confirm New Password:</label>
+                  <input
+                    type="password"
+                    value={newConfirmPassword}
+                    onChange={(e) => setNewConfirmPassword(e.target.value)}
+                    placeholder="Confirm New Password"
+                  />
+                </div>
+              </>
+            )}
+            <button onClick={isEditing ? handleSaveChanges : toggleEdit} className="save-changes-button">
+              {isEditing ? "Save Changes" : "Edit"}
             </button>
+            {isEditing && (
+              <button onClick={toggleEdit} className="cancel-button">
+                Cancel
+              </button>
+            )}
             <button onClick={handleLogout} className="logout-button">
               Logout
             </button>

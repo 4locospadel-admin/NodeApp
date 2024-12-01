@@ -33,7 +33,10 @@ router.post("/signup", async (req, res) => {
       .input("Password", sql.NVarChar, hashedPassword)
       .query("INSERT INTO [User] (Name, Email, Password) VALUES (@Name, @Email, @Password)");
 
-      res.status(201).json({ message: "User registered successfully.", Email, Name });
+    // Generate a token after successful sign-up
+    const token = jwt.sign({ Email }, SECRET, { expiresIn: "1h" });
+
+    res.status(201).json({ message: "User registered successfully.", token, Email, Name });
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal server error.");
@@ -53,11 +56,11 @@ router.post("/login", async (req, res) => {
       .input("Email", sql.NVarChar, Email)
       .query("SELECT * FROM [User] WHERE Email = @Email");
 
-    if (user.recordset.length === 0) return res.status(400).send("Invalid credentials.");
+    if (user.recordset.length === 0) return res.status(400).send("Invalid credentials1.");
 
     // Verify Password
     const isValid = await bcrypt.compare(Password, user.recordset[0].Password);
-    if (!isValid) return res.status(400).send("Invalid credentials.");
+    if (!isValid) return res.status(400).send("Invalid credentials2.");
 
     // Create JWT
     const token = jwt.sign({ Email, role: user.recordset[0].Role || "user" }, SECRET, {
@@ -184,14 +187,14 @@ router.put("/reset-password", async (req, res) => {
 
   router.put("/user/update", async (req, res) => {
     const { Name, newPassword } = req.body;
-    const token = req.headers.authorization?.split(" ")[1];
   
+    const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
       return res.status(401).send("Unauthorized.");
     }
   
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, SECRET);
       const Email = decoded.Email;
   
       const pool = await connectToDatabase();
@@ -229,6 +232,12 @@ router.put("/reset-password", async (req, res) => {
       res.status(400).send("No updates were provided.");
     } catch (err) {
       console.error(err);
+      if (err.name === "JsonWebTokenError") {
+        return res.status(400).send("Invalid token.");
+      }
+      if (err.name === "TokenExpiredError") {
+        return res.status(401).send("Token expired. Please log in again.");
+      }
       res.status(500).send("Internal server error.");
     }
   });

@@ -195,6 +195,7 @@ function Reservation() {
     };
 
     const createReservation = async (details) => {
+        if (loading) return; // Prevent further clicks if already in process
         setLoading(true);
     
         try {
@@ -225,6 +226,7 @@ function Reservation() {
     };
 
     const cancelReservation = async (id) => {
+        if (loading) return;
         const reason = prompt("Please provide a reason for cancellation:");
         if (!reason) {
             alert("Cancellation reason is required.");
@@ -283,6 +285,13 @@ function Reservation() {
 
     return (
         <div className="reservation-page">
+
+            {loading && (
+                <div className="loading-indicator">
+                    <p>Loading...</p>
+                </div>
+            )}
+
             <div className="date-picker">
                 <DatePicker
                     selected={selectedDate}
@@ -299,11 +308,6 @@ function Reservation() {
                 <div className="legend-item other-reserved">Reserved</div>
             </div>
 
-            {loading && (
-                <div className="loading-indicator">
-                    <p>Loading...</p>
-                </div>
-            )}
 
             <table className="reservation-table">
                 <thead>
@@ -414,13 +418,15 @@ function Reservation() {
                         <p><strong>Duration:</strong> {confirmationModal.duration} hours</p>
 
                         <button className="cancel-button" onClick={() => setConfirmationModal(null)}>Cancel</button>
-                        <button className="confirm-button"
+                        <button
+                            className="confirm-button"
                             onClick={async () => {
                                 await createReservation(confirmationModal);
                                 setConfirmationModal(null);
                             }}
+                            disabled={loading} // Disable button during loading
                         >
-                            Create Reservation
+                            {loading ? "Creating..." : "Create Reservation"}
                         </button>
                     </div>
                 </div>

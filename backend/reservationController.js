@@ -15,6 +15,20 @@ const transporter = nodemailer.createTransport({
     },
 });
 
+const formatDate = (date) => new Date(date).toLocaleDateString("en-GB");
+const formatTime = (timeString) => {
+    try {
+        const date = new Date(timeString);
+        if (isNaN(date.getTime())) {
+            throw new Error("Invalid date");
+        }
+        return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" , hourCycle: 'h23'});
+    } catch (error) {
+        console.error("Invalid time format:", timeString);
+        return "Invalid Time";
+    }
+};
+
 const generateCalendarEvent = (reservation) => {
     try {
         // Ensure the inputs are defined
