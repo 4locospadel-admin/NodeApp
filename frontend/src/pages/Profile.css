@@ -93,6 +93,11 @@
       width: 100%; /* Make buttons full width on small screens */
     }
   }
+
+  .error-text {
+    color: red;
+    font-size: 0.9rem;
+  }
   
   .logout-button {
     margin-top: 20px;

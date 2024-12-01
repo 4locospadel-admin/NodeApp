@@ -11,8 +11,14 @@ function Profile() {
   const [newConfirmPassword, setNewConfirmPassword] = useState("");
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isEmailValid, setIsEmailValid] = useState(true);
 
+  const handleEmailChange = (e) => {
+    const email = e.target.value;
+    setEmail(email);
+    setIsEmailValid(isValidEmail(email));
+  };
+  
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -26,6 +32,11 @@ function Profile() {
 
   const handleToggle = () => setIsLogin(!isLogin);
 
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+};
+
   const toggleEdit = () => {
     setIsEditing((prev) => !prev);
     if (isEditing) {
@@ -36,6 +47,11 @@ function Profile() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!isValidEmail(Email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
 
     if (!Email || !Password || (!isLogin && !Name)) {
       alert("Please fill out all fields.");
@@ -178,14 +194,15 @@ function Profile() {
               </div>
             )}
             <div>
-              <label>Email</label>
-              <input
-                type="email"
-                value={Email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Your Email"
-                required
-              />
+                <label>Email</label>
+                <input
+                    type="email"
+                    value={Email}
+                    onChange={handleEmailChange}
+                    placeholder="Your Email"
+                    required
+                />
+                {!isEmailValid && <small className="error-text">Invalid email format.</small>}
             </div>
             <div>
               <label>Password</label>
@@ -211,7 +228,9 @@ function Profile() {
                 />
               </div>
             )}
-            <button type="submit">{isLogin ? "Log In" : "Sign Up"}</button>
+            <button type="submit" disabled={!isEmailValid}>
+                {isLogin ? "Log In" : "Sign Up"}
+            </button>
           </form>
           <div className="auth-buttons">
             <button onClick={handleToggle} className="toggle-button">

@@ -71,6 +71,7 @@ function ContactForm() {
         setMessage("");
         setReceiveNotifications(false);
         setCategory("Question");
+        window.location.reload();
       } else {
         throw new Error("Failed to create inquiry.");
       }
