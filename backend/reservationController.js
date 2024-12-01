@@ -15,21 +15,44 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-// Helper: Generate calendar event
 const generateCalendarEvent = (reservation) => {
-    const start = new Date(reservation.date + "T" + reservation.startTime).toISOString().replace(/-|:|\.\d\d\d/g, "");
-    const end = new Date(reservation.date + "T" + reservation.endTime).toISOString().replace(/-|:|\.\d\d\d/g, "");
-    return `BEGIN:VCALENDAR
+    try {
+        // Ensure the inputs are defined
+        if (!reservation.date || !reservation.startTime || !reservation.endTime) {
+            throw new Error("Missing required fields: date, startTime, or endTime");
+        }
+
+        const [day, month, year] = reservation.date.split("/");
+        const normalizedDate = `${year}-${month}-${day}`;
+
+        const start = new Date(`${normalizedDate}T${reservation.startTime}`);
+        const end = new Date(`${normalizedDate}T${reservation.endTime}`);
+
+
+        // Check if the constructed dates are valid
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            throw new Error("Invalid start or end time for calendar event.");
+        }
+
+        // Format the start and end times for the calendar event
+        const formattedStart = start.toISOString().replace(/-|:|\.\d\d\d/g, "");
+        const formattedEnd = end.toISOString().replace(/-|:|\.\d\d\d/g, "");
+
+        return `BEGIN:VCALENDAR
 VERSION:2.0
 BEGIN:VEVENT
 UID:${uuidv4()}
 SUMMARY:Padel Court Reservation
 DESCRIPTION:Reservation for ${reservation.court}
-DTSTART:${start}
-DTEND:${end}
+DTSTART:${formattedStart}
+DTEND:${formattedEnd}
 LOCATION:4Locos Padel
 END:VEVENT
 END:VCALENDAR`;
+    } catch (error) {
+        console.error("Error generating calendar event:", error.message);
+        throw error; // Re-throw the error to handle it upstream
+    }
 };
 
 // Create reservation
@@ -41,23 +64,30 @@ router.post("/reservations", async (req, res) => {
     }
 
     try {
+        const [day, month, year] = date.split("/");
+        const reservationDate = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day), 0, 0, 0));
+
+        const sqlStartTime = startTime + ":00";
+        const sqlEndTime = endTime + ":00";
+
         const pool = await connectToDatabase();
 
+        // Validate court
         const courtQuery = await pool.request()
-            .input("CourtName", sql.NVarChar, court)
-            .query("SELECT CourtID FROM Courts WHERE CourtName = @CourtName");
+            .input("CourtID", sql.NVarChar, court)
+            .query("SELECT CourtID FROM Court WHERE CourtID = @CourtID");
 
         const courtID = courtQuery.recordset[0]?.CourtID;
-
         if (!courtID) return res.status(400).send("Invalid court.");
 
+        // Insert reservation
         const reservationResult = await pool.request()
             .input("CourtID", sql.Int, courtID)
             .input("Name", sql.NVarChar, name)
             .input("Email", sql.NVarChar, email)
-            .input("Date", sql.Date, date)
-            .input("StartTime", sql.Time, startTime)
-            .input("EndTime", sql.Time, endTime)
+            .input("Date", sql.Date, reservationDate)
+            .input("StartTime", sql.NVarChar, sqlStartTime)
+            .input("EndTime", sql.NVarChar, sqlEndTime)
             .input("Status", sql.NVarChar, "Created")
             .query(`
                 INSERT INTO Reservation (CourtID, Name, Email, Date, StartTime, EndTime, Status)
@@ -67,7 +97,7 @@ router.post("/reservations", async (req, res) => {
 
         const reservationID = reservationResult.recordset[0].ReservationID;
 
-        // Send notification email
+        // Send confirmation email
         const calendarEvent = generateCalendarEvent({ court, date, startTime, endTime });
         await transporter.sendMail({
             from: process.env.EMAIL_USER,
@@ -82,25 +112,10 @@ router.post("/reservations", async (req, res) => {
 
         res.status(201).json({ reservationID });
     } catch (err) {
-        console.error(err);
+        console.error("Error creating reservation:", err);
         res.status(500).send("Error creating reservation.");
     }
 });
-
-// Helper functions for formatting
-const formatDate = (date) => new Date(date).toLocaleDateString("en-GB");
-const formatTime = (timeString) => {
-    try {
-        const date = new Date(timeString);
-        if (isNaN(date.getTime())) {
-            throw new Error("Invalid date");
-        }
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    } catch (error) {
-        console.error("Invalid time format:", timeString);
-        return "Invalid Time";
-    }
-};
 
 // Cancel reservation
 router.put("/reservations/:id/cancel", async (req, res) => {
@@ -172,7 +187,7 @@ router.get("/reservations", async (req, res) => {
             .query(`
                 SELECT 
                     R.ReservationID, R.Name, R.Email, R.Date, R.StartTime, R.EndTime, 
-                    R.Status, R.CancellationReason, C.CourtName,
+                    R.Status, R.CancellationReason, C.CourtName, C.CourtID,
                     DATEDIFF(MINUTE, R.StartTime, R.EndTime) / 60.0 AS Duration
                 FROM Reservation R
                 INNER JOIN Court C ON R.CourtID = C.CourtID
@@ -213,6 +228,7 @@ router.get("/reservations/day", async (req, res) => {
         res.status(500).send("Internal server error.");
     }
 });
+
 
 // Fetch all courts
 router.get("/courts", async (req, res) => {
