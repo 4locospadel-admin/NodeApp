@@ -1,5 +1,5 @@
 body, html {
-    height: 100%;
+    height: 85%;
     margin: 0;
     padding: 0;
     background-color: #323F5E;
@@ -30,7 +30,7 @@ body, html {
     border: 5px solid #e7ff7d; /* Border matches the background */
     cursor: pointer;
     font-size: 1.5rem; /* Larger text */
-    width: 65%;
+    width: 50%;
     height: 65px;
     font-weight: bold; /* Make labels bold */
     text-decoration: none;
@@ -49,20 +49,20 @@ body, html {
 
 /* Logo styling */
 .logo {
-    width: 400px;
+    width: 450px;
     margin-bottom: 30px;
 }
 
 /* Responsive design for smaller screens */
 @media (max-width: 768px) {
     .home-button-container {
-        gap: 25px;
+        gap: 20px;
         padding-top: 15px;
     }
     .home-button {
         width: 80%; /* Make buttons wider on smaller screens */
-        height: 60px;
-        font-size: 1.2rem; /* Slightly smaller font size */
+        height: 45px;
+        font-size: 1.0rem; /* Slightly smaller font size */
         padding: 10px 15px; /* Adjust padding for smaller buttons */
         border: 3px solid #e7ff7d; /* Light greenish-yellow border */
     }

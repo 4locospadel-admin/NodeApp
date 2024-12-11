@@ -36,14 +36,14 @@ function Reservation() {
             const parsedUser = JSON.parse(storedUser);
             setUserEmail(parsedUser.Email);
             setUserName(parsedUser.Name);
-    
+
             // Fetch reservations for the user
             fetchReservations(parsedUser.Email);
         }
-    
+
         // Fetch courts
         fetchCourts();
-    
+
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         fetchReservationsForDay(today);
@@ -81,9 +81,9 @@ function Reservation() {
         const year = localDate.getFullYear();
         const month = String(localDate.getMonth() + 1).padStart(2, "0");
         const day = String(localDate.getDate()).padStart(2, "0");
-    
+
         const formattedDate = `${year}-${month}-${day}`;
-    
+
         fetch(`/api/reservations/day?date=${formattedDate}`)
             .then((response) => {
                 if (!response.ok) {
@@ -100,7 +100,7 @@ function Reservation() {
     const handleDateChange = (date) => {
         const localDate = new Date(date);
         localDate.setHours(0, 0, 0, 0);
-    
+
         setSelectedDate(localDate);
         fetchReservationsForDay(localDate);
     };
@@ -109,46 +109,45 @@ function Reservation() {
         const startDate = new Date(selectedDate);
         const [hours, minutes] = time.split(":").map(Number);
         startDate.setHours(hours, minutes, 0, 0);
-    
-        const now = new Date(); // Current time for comparison
-        if (startDate < now) {
-            return "Past"; // Add "Past" status for times in the past
-        }
-    
+
         const reservation = tableReservations.find(
             (res) =>
                 res.CourtID === courtId &&
                 new Date(res.Date).toDateString() === selectedDate.toDateString() &&
                 new Date(res.StartTime).getHours() <= startDate.getHours() &&
-                new Date(res.EndTime).getHours() > startDate.getHours()
+                new Date(res.EndTime).getHours() > startDate.getHours() &&
+                res.Status !== "Cancelled"
         );
-    
-        if (!reservation || reservation.Status === "Cancelled") return "Available";
-        return reservation.Email === userEmail ? "YourReservations" : "Reserved";
+
+        const now = new Date(); // Current time for comparison
+
+        if (!reservation) return (startDate < now) ? "AvailablePast" : "Available";
+        const resultClass = reservation.Email === userEmail ? "YourReservations" : "Reserved"
+        return (startDate < now) ? resultClass + "Past" : resultClass;
     };
 
     const handleCellClick = (time, court) => {
         const startDate = new Date(selectedDate);
         const [hours, minutes] = time.split(":").map(Number);
         startDate.setHours(hours, minutes, 0, 0);
-    
+
         const now = new Date();
         if (startDate < now) {
             return; // Prevent click on past times
         }
-    
+
         const reservationIndex = reservations.findIndex((res) => {
             const reservationDate = new Date(res.Date);
             reservationDate.setHours(0, 0, 0, 0);
-    
+
             const normalizedSelectedDate = new Date(selectedDate);
             normalizedSelectedDate.setHours(0, 0, 0, 0);
-    
+
             const isSameDate = formatDate(res.Date) === formatDate(normalizedSelectedDate);
             const [cellHours] = time.split(":").map(Number);
             const reservationStartHour = new Date(res.StartTime).getHours();
             const reservationEndHour = new Date(res.EndTime).getHours();
-    
+
             return (
                 res.CourtID === court.CourtID &&
                 isSameDate &&
@@ -156,14 +155,14 @@ function Reservation() {
                 cellHours < reservationEndHour
             );
         });
-    
+
         if (reservationIndex !== -1) {
             const reservation = reservations[reservationIndex];
-    
+
             if (reservation.Email === userEmail) {
                 // Unpack the row and scroll into view
                 toggleRow(reservationIndex);
-    
+
                 // Scroll to the unpacked row
                 setTimeout(() => {
                     const rowElement = document.querySelector(
@@ -197,7 +196,7 @@ function Reservation() {
     const createReservation = async (details) => {
         if (loading) return; // Prevent further clicks if already in process
         setLoading(true);
-    
+
         try {
             const response = await fetch("/api/reservations", {
                 method: "POST",
@@ -211,9 +210,9 @@ function Reservation() {
                     endTime: details.endTime,
                 }),
             });
-    
+
             if (!response.ok) throw new Error(await response.text());
-    
+
             alert("Reservation created successfully.");
             fetchReservations(userEmail);
             fetchReservationsForDay(selectedDate);
@@ -232,18 +231,18 @@ function Reservation() {
             alert("Cancellation reason is required.");
             return;
         }
-    
+
         setLoading(true); // Start loading
-    
+
         try {
             const response = await fetch(`/api/reservations/${id}/cancel`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ CancellationReason: reason }),
             });
-    
+
             if (!response.ok) throw new Error(await response.text());
-    
+
             alert("Reservation cancelled successfully.");
             fetchReservations(userEmail); // Refresh reservations
             fetchReservationsForDay(selectedDate); // Refresh table reservations
@@ -276,7 +275,7 @@ function Reservation() {
             if (isNaN(date.getTime())) {
                 throw new Error("Invalid date");
             }
-            return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" , hourCycle: 'h23'});
+            return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hourCycle: 'h23' });
         } catch (error) {
             console.error("Invalid time format:", timeString);
             return "Invalid Time";
@@ -329,11 +328,10 @@ function Reservation() {
                                 return (
                                     <td
                                         key={`${time}-${court.CourtID}`}
-                                        className={`${status.toLowerCase()} ${
-                                            highlightedCells[`${time}-${court.CourtID}`]
+                                        className={`${status.toLowerCase()} ${highlightedCells[`${time}-${court.CourtID}`]
                                                 ? "highlighted-cell"
                                                 : ""
-                                        }`}
+                                            }`}
                                         onClick={isClickable ? () => handleCellClick(time, court) : undefined}
                                         style={{ cursor: isClickable ? "pointer" : "not-allowed" }}
                                     ></td>
@@ -362,7 +360,7 @@ function Reservation() {
                         <p><strong>Date:</strong> {reservationModal.date}</p>
                         <p><strong>Start Time:</strong> {reservationModal.startTime}</p>
                         <p><strong>Court:</strong> {reservationModal.courtName}</p>
-                        
+
                         <label>
                             <strong>Duration (hours):</strong>
                             <select

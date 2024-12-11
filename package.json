@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node backend/server.js",
-    "localhost": "cd frontend && npm install && npm run build && cd .. && rm -rf ./backend/build && cp -r ./frontend/build ./backend/build && node backend/server.js",
+    "localhost": "npm install && cd frontend && npm install && npm run build && cd .. && rm -rf ./backend/build && cp -r ./frontend/build ./backend/build && cd backend && npm install && cd .. && node backend/server.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

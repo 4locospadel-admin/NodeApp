@@ -1,9 +1,9 @@
 const express = require('express');
 const path = require('path');
 const { connectToDatabase } = require('./dbConnection');
-const userController = require('./userController');
-const inquiryController = require('./inquiryController');
-const reservationController = require('./reservationController');
+const userController = require('./controllers/userController');
+const inquiryController = require('./controllers/inquiryController');
+const reservationController = require('./controllers/reservationController');
 
 require('dotenv').config(({ override: true }));
 

@@ -18,7 +18,7 @@ function Profile() {
     setEmail(email);
     setIsEmailValid(isValidEmail(email));
   };
-  
+
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -35,7 +35,7 @@ function Profile() {
   const isValidEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
-};
+  };
 
   const toggleEdit = () => {
     setIsEditing((prev) => !prev);
@@ -95,24 +95,24 @@ function Profile() {
       alert("Passwords do not match.");
       return;
     }
-  
+
     if (newPassword && newPassword.length < 5) {
       alert("Password must be at least 5 characters long.");
       return;
     }
     console.log("user:", loggedInUser);
-  
+
     const token = localStorage.getItem("token");
     console.log("token:", token, "name", Name, "pass", newPassword);
     if (!token) {
       alert("You must be logged in to update your profile.");
       return;
     }
-  
+
     try {
       const trimmedName = Name.trim();
       const trimmedPassword = newPassword?.trim();
-  
+
       const response = await fetch("/api/user/update", {
         method: "PUT",
         headers: {
@@ -124,13 +124,13 @@ function Profile() {
           newPassword: trimmedPassword || undefined,
         }),
       });
-  
+
       if (!response.ok) {
         const errorMessage = await response.text();
         alert(`Error: ${response.status} - ${errorMessage}`);
         return;
       }
-  
+
       const data = await response.json();
       setLoggedInUser((prev) => ({ ...prev, Name: data.Name }));
       localStorage.setItem("user", JSON.stringify({ ...loggedInUser, Name: data.Name }));
@@ -194,15 +194,15 @@ function Profile() {
               </div>
             )}
             <div>
-                <label>Email</label>
-                <input
-                    type="email"
-                    value={Email}
-                    onChange={handleEmailChange}
-                    placeholder="Your Email"
-                    required
-                />
-                {!isEmailValid && <small className="error-text">Invalid email format.</small>}
+              <label>Email</label>
+              <input
+                type="email"
+                value={Email}
+                onChange={handleEmailChange}
+                placeholder="Your Email"
+                required
+              />
+              {!isEmailValid && <small className="error-text">Invalid email format.</small>}
             </div>
             <div>
               <label>Password</label>
@@ -229,7 +229,7 @@ function Profile() {
               </div>
             )}
             <button type="submit" disabled={!isEmailValid}>
-                {isLogin ? "Log In" : "Sign Up"}
+              {isLogin ? "Log In" : "Sign Up"}
             </button>
           </form>
           <div className="auth-buttons">

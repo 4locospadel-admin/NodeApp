@@ -21,7 +21,7 @@ function ContactForm() {
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setEmail(parsedUser.Email); // Pre-fill the email field
-  
+
       // Fetch inquiries using the stored email
       fetch(`/api/inquiries?email=${encodeURIComponent(parsedUser.Email)}`)
         .then((response) => {
@@ -186,9 +186,8 @@ function ContactForm() {
       <hr className="divider" />
 
       <button
-        className={`toggle-inquiries ${
-          showInquiries ? "blue-button" : "yellow-button"
-        }`}
+        className={`toggle-inquiries ${showInquiries ? "blue-button" : "yellow-button"
+          }`}
         onClick={() => setShowInquiries(!showInquiries)}
       >
         {showInquiries ? "Hide Past Inquiries" : "Show Past Inquiries"}
