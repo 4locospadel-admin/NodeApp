@@ -1,6 +1,5 @@
 const sql = require('mssql');
 const dbConfig = require('./config/dbConfig');
-
 let poolPromise;
 
 async function connectToDatabase() {
