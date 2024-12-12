@@ -579,7 +579,7 @@ function Reservation() {
                     <td>{formatTime(reservation.EndTime)}</td>
                     <td>{reservation.CourtName}</td>
                     <td>{reservation.Status}</td>
-                    {role === "admin" && (
+                    {userRole === "admin" && (
                       <td>
                         <button
                           className="cancel-button"
@@ -597,7 +597,7 @@ function Reservation() {
                   {/* Expandable row */}
                   {expandedRows.includes(index) && (
                     <tr className="expanded-row">
-                      <td colSpan={role === "admin" ? "6" : "5"}>
+                      <td colSpan={userRole === "admin" ? "6" : "5"}>
                         <div className="expanded-content">
                           <p>
                             <strong>Name:</strong> {reservation.Name}
