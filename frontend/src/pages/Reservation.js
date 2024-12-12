@@ -80,9 +80,9 @@ function Reservation() {
   useEffect(() => {}, [tableReservations]);
 
   /**
-   * Fetches available courts from the server.
+   * Fetches all courts available for reservations.
    */
-  const fetchCourts = () => {
+  const fetchCourts = useCallback(() => {
     fetch("/api/courts")
       .then((response) => {
         if (!response.ok) {
@@ -92,31 +92,37 @@ function Reservation() {
       })
       .then(setCourts)
       .catch((error) => console.error("Error fetching courts:", error));
-  };
+  }, []);
 
   /**
-   * Fetches reservations for a specific user by email.
-   * @param {string} email - The email of the user whose reservations are to be fetched.
-  */
-  const fetchReservations = (email) => {
-    const url = userRole === "admin" ? `/api/reservations?role=admin` : `/api/reservations?email=${encodeURIComponent(email)}`;
+   * Fetches reservations for the user or all reservations for admins.
+   * @param {string} email - User email (ignored if role is admin).
+   */
+  const fetchReservations = useCallback(
+    (email) => {
+      const url =
+        userRole === "admin"
+          ? `/api/reservations?role=admin`
+          : `/api/reservations?email=${encodeURIComponent(email)}`;
 
-    fetch(url)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(setReservations)
-      .catch((error) => console.error("Error fetching reservations:", error));
-  };
+      fetch(url)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(setReservations)
+        .catch((error) => console.error("Error fetching reservations:", error));
+    },
+    [userRole] // Dependency to ensure the callback updates when role changes
+  );
 
   /**
    * Fetches all reservations for a specific day.
    * @param {Date} date - The date for which reservations are to be fetched.
    */
-  const fetchReservationsForDay = (date) => {
+  const fetchReservationsForDay = useCallback((date) => {
     const localDate = new Date(date);
     const year = localDate.getFullYear();
     const month = String(localDate.getMonth() + 1).padStart(2, "0");
@@ -131,11 +137,11 @@ function Reservation() {
         }
         return response.json();
       })
-      .then((data) => {
-        setTableReservations(data); // Ensure the table updates dynamically
-      })
-      .catch((error) => console.error("Error fetching reservations:", error));
-  };
+      .then(setTableReservations)
+      .catch((error) =>
+        console.error("Error fetching reservations for the day:", error)
+      );
+  }, []);
 
   /**
    * Handles the change in selected date and fetches reservations for the selected day.
