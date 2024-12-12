@@ -28,6 +28,7 @@ function Reservation() {
   const [courts, setCourts] = useState([]);
   const [userEmail, setUserEmail] = useState(null);
   const [userName, setUserName] = useState(null);
+  const [userRole, setUserRole] = useState(null);
   const [sortField, setSortField] = useState("");
   const [modalContent, setModalContent] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
@@ -62,6 +63,7 @@ function Reservation() {
       const parsedUser = JSON.parse(storedUser);
       setUserEmail(parsedUser.Email);
       setUserName(parsedUser.Name);
+      setUserRole(parsedUser.Role);
 
       // Fetch reservations for the user
       fetchReservations(parsedUser.Email);
@@ -95,9 +97,11 @@ function Reservation() {
   /**
    * Fetches reservations for a specific user by email.
    * @param {string} email - The email of the user whose reservations are to be fetched.
-   */
+  */
   const fetchReservations = (email) => {
-    fetch(`/api/reservations?email=${encodeURIComponent(email)}`)
+    const url = userRole === "admin" ? `/api/reservations?role=admin` : `/api/reservations?email=${encodeURIComponent(email)}`;
+
+    fetch(url)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -575,12 +579,25 @@ function Reservation() {
                     <td>{formatTime(reservation.EndTime)}</td>
                     <td>{reservation.CourtName}</td>
                     <td>{reservation.Status}</td>
+                    {role === "admin" && (
+                      <td>
+                        <button
+                          className="cancel-button"
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent row collapse
+                            cancelReservation(reservation.ReservationID);
+                          }}
+                        >
+                          Cancel
+                        </button>
+                      </td>
+                    )}
                   </tr>
 
                   {/* Expandable row */}
                   {expandedRows.includes(index) && (
                     <tr className="expanded-row">
-                      <td colSpan="5">
+                      <td colSpan={role === "admin" ? "6" : "5"}>
                         <div className="expanded-content">
                           <p>
                             <strong>Name:</strong> {reservation.Name}
@@ -589,25 +606,13 @@ function Reservation() {
                             <strong>Email:</strong> {reservation.Email}
                           </p>
                           <p>
-                            <strong>Duration:</strong> {reservation.Duration}{" "}
-                            hours
+                            <strong>Duration:</strong> {reservation.Duration} hours
                           </p>
                           {reservation.Status === "Cancelled" && (
                             <p>
                               <strong>Cancellation Reason:</strong>{" "}
                               {reservation.CancellationReason}
                             </p>
-                          )}
-                          {reservation.Status === "Created" && (
-                            <button
-                              className="cancel-button"
-                              onClick={(e) => {
-                                e.stopPropagation(); // Prevent row collapse
-                                cancelReservation(reservation.ReservationID);
-                              }}
-                            >
-                              Cancel
-                            </button>
                           )}
                         </div>
                       </td>

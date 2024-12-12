@@ -6,7 +6,19 @@
 const express = require("express");
 const router = express.Router();
 const sql = require("mssql");
+const nodemailer = require("nodemailer");
 const { connectToDatabase } = require("../dbConnection");
+
+/**
+ * Email transporter for sending notifications.
+ */
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
 
 /**
  * @route GET /inquiries
@@ -16,33 +28,28 @@ const { connectToDatabase } = require("../dbConnection");
  * @returns {Object} 500 - Internal server error message.
  */
 router.get("/inquiries", async (req, res) => {
-  const { email } = req.query; // Extract email from query parameters
-  if (!email) {
-    try {
-      const pool = await connectToDatabase();
-      const result = await pool.request().query("SELECT * FROM SupportInquiry");
+  const { email } = req.query;
 
-      res.status(200).json(result.recordset);
-    } catch (error) {
-      console.error("Error fetching inquiries:", error);
-      res.status(500).json({ message: "Internal server error." });
-    }
-  } else {
-    try {
-      const pool = await connectToDatabase();
-      const result = await pool
-        .request()
-        .input("Email", sql.NVarChar, email)
-        .query("SELECT * FROM SupportInquiry WHERE Email = @Email");
+  try {
+    const pool = await connectToDatabase();
 
-      res.status(200).json(result.recordset);
-    } catch (error) {
-      console.error("Error fetching inquiries:", error);
-      res.status(500).json({ message: "Internal server error." });
+    let query = "SELECT * FROM SupportInquiry";
+    if (email) {
+      query += " WHERE Email = @Email";
     }
+
+    const request = pool.request();
+    if (email) {
+      request.input("Email", sql.NVarChar, email);
+    }
+
+    const result = await request.query(query);
+    res.status(200).json(result.recordset);
+  } catch (error) {
+    console.error("Error fetching inquiries:", error);
+    res.status(500).json({ message: "Internal server error." });
   }
 });
-
 /**
  * @route POST /inquiries
  * @description Create a new support inquiry.
@@ -111,7 +118,21 @@ router.put("/inquiries/:id", async (req, res) => {
 
   try {
     const pool = await connectToDatabase();
-    const result = await pool
+
+    // Fetch inquiry details to check notifications
+    const inquiryQuery = await pool
+      .request()
+      .input("Id", sql.Int, id)
+      .query("SELECT Email, Notification FROM SupportInquiry WHERE Id = @Id");
+
+    if (inquiryQuery.recordset.length === 0) {
+      return res.status(404).json({ message: "Inquiry not found." });
+    }
+
+    const inquiry = inquiryQuery.recordset[0];
+
+    // Update inquiry
+    const updateResult = await pool
       .request()
       .input("Id", sql.Int, id)
       .input("Status", sql.NVarChar, status || null)
@@ -123,8 +144,18 @@ router.put("/inquiries/:id", async (req, res) => {
         WHERE Id = @Id;
       `);
 
-    if (result.rowsAffected[0] === 0) {
+    if (updateResult.rowsAffected[0] === 0) {
       return res.status(404).json({ message: "Inquiry not found." });
+    }
+
+    // Send email if notifications are enabled
+    if (inquiry.Notification && response) {
+      await transporter.sendMail({
+        from: `"4Locos Padel" <${process.env.EMAIL}>`,
+        to: inquiry.Email,
+        subject: "Inquiry Response",
+        text: `Your inquiry\n\n${inquiry.Description} \n\nhas been responded to:\n\n${response}`,
+      });
     }
 
     res.status(200).json({ message: "Inquiry updated successfully." });

@@ -250,33 +250,49 @@ router.put("/reservations/:id/cancel", async (req, res) => {
 
 /**
  * @route GET /reservations
- * @description Fetches reservations for a specific user.
- * @queryParam {string} email - The user's email address.
+ * @description Fetches reservations for a user or all reservations for admins.
+ * @queryParam {string} [email] - The user's email address (optional for admins).
  * @returns {Object[]} 200 - Array of reservation objects.
- * @returns {string} 400 - Validation error message.
  * @returns {string} 500 - Internal server error message.
  */
 router.get("/reservations", async (req, res) => {
-  const { email } = req.query;
-
-  if (!email) {
-    return res.status(400).send("Email is required.");
-  }
+  const { email, role } = req.query; // Include role in the request query
 
   try {
     const pool = await connectToDatabase();
 
-    const queryResult = await pool.request().input("Email", sql.NVarChar, email)
-      .query(`
-                SELECT 
-                    R.ReservationID, R.Name, R.Email, R.Date, R.StartTime, R.EndTime, 
-                    R.Status, R.CancellationReason, C.CourtName, C.CourtID,
-                    DATEDIFF(MINUTE, R.StartTime, R.EndTime) / 60.0 AS Duration
-                FROM Reservation R
-                INNER JOIN Court C ON R.CourtID = C.CourtID
-                WHERE R.Email = @Email
-                ORDER BY R.Date, R.StartTime
-            `);
+    let query;
+    if (role === "admin") {
+      // Fetch all reservations for admins
+      query = `
+                  SELECT 
+                      R.ReservationID, R.Name, R.Email, R.Date, R.StartTime, R.EndTime, 
+                      R.Status, R.CancellationReason, C.CourtName, C.CourtID,
+                      DATEDIFF(MINUTE, R.StartTime, R.EndTime) / 60.0 AS Duration
+                  FROM Reservation R
+                  INNER JOIN Court C ON R.CourtID = C.CourtID
+                  ORDER BY R.Date, R.StartTime
+              `;
+    } else if (email) {
+      // Fetch user-specific reservations
+      query = `
+                  SELECT 
+                      R.ReservationID, R.Name, R.Email, R.Date, R.StartTime, R.EndTime, 
+                      R.Status, R.CancellationReason, C.CourtName, C.CourtID,
+                      DATEDIFF(MINUTE, R.StartTime, R.EndTime) / 60.0 AS Duration
+                  FROM Reservation R
+                  INNER JOIN Court C ON R.CourtID = C.CourtID
+                  WHERE R.Email = @Email
+                  ORDER BY R.Date, R.StartTime
+              `;
+    } else {
+      return res.status(400).send("Email is required for non-admin users.");
+    }
+
+    const queryResult = await pool
+      .request()
+      .input("Email", sql.NVarChar, email)
+      .query(query);
 
     res.status(200).json(queryResult.recordset);
   } catch (error) {

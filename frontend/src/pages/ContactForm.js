@@ -31,16 +31,35 @@ function ContactForm() {
     direction: "desc",
   });
   const [showInquiries, setShowInquiries] = useState(false);
+  const [notification, setNotification] = useState(null);
 
-  useEffect(() => {
-    // Retrieve the logged-in user from local storage
+  /**
+   * Displays a notification banner.
+   * @param {string} message - The message to display.
+   * @param {string} [type="success"] - The type of notification (`success` or `error`).
+   */
+  const showNotification = (message, type = "success") => {
+    setNotification({ message, type });
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  /**
+   * Fetches inquiries from the server and updates the `inquiries` state.
+   * Admins fetch all inquiries, while regular users fetch inquiries by their email.
+   */
+  const fetchInquiries = () => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
-      setEmail(parsedUser.Email); // Pre-fill the email field
+      setEmail(parsedUser.Email);
 
-      // Fetch inquiries using the stored email
-      fetch(`/api/inquiries?email=${encodeURIComponent(parsedUser.Email)}`)
+      const role = parsedUser.Role; // Assume Role is available in local storage
+      const url =
+        role === "admin"
+          ? `/api/inquiries`
+          : `/api/inquiries?email=${encodeURIComponent(parsedUser.Email)}`;
+
+      fetch(url)
         .then((response) => {
           if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
@@ -48,10 +67,14 @@ function ContactForm() {
           return response.json();
         })
         .then((data) => {
-          setInquiries(data); // Update inquiries state
+          setInquiries(data);
         })
         .catch((error) => console.error("Error fetching inquiries:", error));
     }
+  };
+
+  useEffect(() => {
+    fetchInquiries();
   }, []);
 
   /**
@@ -141,8 +164,70 @@ function ContactForm() {
     );
   };
 
+  /**
+   * Handles the change of an inquiry's status.
+   * @param {number} id - The ID of the inquiry to update.
+   * @param {string} status - The new status to set.
+   */
+  const handleStatusChange = (id, status) => {
+    setInquiries((prevInquiries) =>
+      prevInquiries.map((inquiry) =>
+        inquiry.Id === id ? { ...inquiry, Status: status } : inquiry
+      )
+    );
+  };
+  
+  /**
+   * Handles the change of an inquiry's response text.
+   * @param {number} id - The ID of the inquiry to update.
+   * @param {string} response - The new response text.
+   */
+  const handleResponseChange = (id, response) => {
+    setInquiries((prevInquiries) =>
+      prevInquiries.map((inquiry) =>
+        inquiry.Id === id ? { ...inquiry, Response: response } : inquiry
+      )
+    );
+  };
+  
+  /**
+   * Saves the changes made to an inquiry's status or response.
+   * @param {number} id - The ID of the inquiry to save changes for.
+   */
+  const saveInquiryChanges = async (id) => {
+    const inquiry = inquiries.find((inquiry) => inquiry.Id === id);
+    if (!inquiry) return;
+  
+    try {
+      const response = await fetch(`/api/inquiries/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: inquiry.Status,
+          response: inquiry.Response,
+        }),
+      });
+  
+      if (!response.ok) throw new Error(await response.text());
+  
+      // Show banner notification instead of alert
+      showNotification("Response saved successfully!");
+  
+      // Refetch inquiries to update the list
+      fetchInquiries();
+    } catch (error) {
+      console.error("Error saving inquiry changes:", error);
+      showNotification("Error saving changes. Please try again.", "error");
+    }
+  };
+
   return (
     <div className="contact-page">
+      {notification && (
+        <div className={`notification-banner ${notification.type}`}>
+          {notification.message}
+        </div>
+      )}
       <h2>Contact us</h2>
 
       <div className="form">
@@ -271,9 +356,24 @@ function ContactForm() {
                     <p>{inquiry.Description}</p>
                   </div>
                   <div className="detail-item">
-                    <strong>Response:</strong>
-                    <p>{inquiry.Answer || "No response yet"}</p>
+                    <strong>Status:</strong>
+                    <select
+                      value={inquiry.Status}
+                      onChange={(e) => handleStatusChange(inquiry.Id, e.target.value)}
+                    >
+                      <option value="Open">Open</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Closed">Closed</option>
+                    </select>
                   </div>
+                  <div className="detail-item">
+                    <strong>Response:</strong>
+                    <textarea
+                      value={inquiry.Response || ""}
+                      onChange={(e) => handleResponseChange(inquiry.Id, e.target.value)}
+                    ></textarea>
+                  </div>
+                  <button onClick={() => saveInquiryChanges(inquiry.Id)}>Save</button>
                 </div>
               )}
             </div>

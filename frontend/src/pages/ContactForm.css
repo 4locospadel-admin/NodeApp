@@ -190,6 +190,25 @@ textarea {
   color: #FFFFFF;
 }
 
+.notification-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 1em;
+  text-align: center;
+  color: white;
+  z-index: 1000;
+}
+
+.notification-banner.success {
+  background-color: #4caf50;
+}
+
+.notification-banner.error {
+  background-color: #f44336;
+}
+
 /* Mobile styling */
 @media (max-width: 768px) {
   .contact-page {
