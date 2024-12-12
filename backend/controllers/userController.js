@@ -1,14 +1,27 @@
+/**
+ * @file userController.js
+ * @description Routes for user authentication, password management, and profile updates.
+ */
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const sql = require("mssql");
 const nodemailer = require("nodemailer");
 const { connectToDatabase } = require("../dbConnection");
-const router = express.Router();
 
+const router = express.Router();
 const SECRET = process.env.JWT_SECRET;
 
-// Sign-Up
+/**
+ * @route POST /signup
+ * @description Registers a new user.
+ * @bodyParam {string} Name - The user's full name.
+ * @bodyParam {string} Email - The user's email address.
+ * @bodyParam {string} Password - The user's password.
+ * @returns {Object} 201 - Success message with a JWT token.
+ * @returns {string} 400 - Validation error message.
+ * @returns {string} 500 - Internal server error message.
+ */
 router.post("/signup", async (req, res) => {
   const { Name, Email, Password } = req.body;
   if (!Name || !Email || !Password) return res.status(400).send("All fields are required.");
@@ -43,7 +56,15 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-// Log-In
+/**
+ * @route POST /login
+ * @description Authenticates a user and returns a JWT token.
+ * @bodyParam {string} Email - The user's email address.
+ * @bodyParam {string} Password - The user's password.
+ * @returns {Object} 200 - Success message with a JWT token.
+ * @returns {string} 400 - Invalid credentials or validation error message.
+ * @returns {string} 500 - Internal server error message.
+ */
 router.post("/login", async (req, res) => {
   const { Email, Password } = req.body;
 
@@ -74,6 +95,15 @@ router.post("/login", async (req, res) => {
   }
 });
 
+/**
+ * @route POST /reset-password
+ * @description Initiates a password reset process by generating and sending a reset token.
+ * @bodyParam {string} Email - The user's email address.
+ * @returns {string} 200 - Password reset email sent.
+ * @returns {string} 400 - Validation error message.
+ * @returns {string} 404 - User not found message.
+ * @returns {string} 500 - Internal server error message.
+ */
 router.put("/reset-password", async (req, res) => {
   const { ResetToken, Password } = req.body;
 
@@ -126,6 +156,15 @@ router.put("/reset-password", async (req, res) => {
   }
 });
 
+/**
+ * @route POST /reset-password
+ * @description Initiates a password reset process by generating and sending a reset token.
+ * @bodyParam {string} Email - The user's email address.
+ * @returns {string} 200 - Password reset email sent.
+ * @returns {string} 400 - Validation error message.
+ * @returns {string} 404 - User not found message.
+ * @returns {string} 500 - Internal server error message.
+ */
 router.post("/reset-password", async (req, res) => {
   const { Email } = req.body;
 
@@ -185,6 +224,18 @@ router.post("/reset-password", async (req, res) => {
   }
 });
 
+/**
+ * @route PUT /user/update
+ * @description Updates the user's profile information, such as name or password.
+ * @bodyParam {string} [Name] - The new name for the user (optional).
+ * @bodyParam {string} [newPassword] - The new password for the user (optional).
+ * @headerParam {string} Authorization - Bearer token for authentication.
+ * @returns {Object} 200 - Updated user profile data.
+ * @returns {string} 400 - Validation error or no updates provided.
+ * @returns {string} 401 - Unauthorized or token expired message.
+ * @returns {string} 404 - User not found message.
+ * @returns {string} 500 - Internal server error message.
+ */
 router.put("/user/update", async (req, res) => {
   const { Name, newPassword } = req.body;
 

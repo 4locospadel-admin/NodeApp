@@ -1,3 +1,8 @@
+/**
+ * @file server.js
+ * @description Entry point for the server application. Configures the Express app, connects to the database, and serves API routes and static files.
+ */
+
 const express = require('express');
 const path = require('path');
 const { connectToDatabase } = require('./dbConnection');
@@ -10,23 +15,36 @@ require('dotenv').config(({ override: true }));
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Middleware to parse JSON bodies
+/**
+ * Middleware to parse JSON request bodies.
+ */
 app.use(express.json());
 
-// Serve the static files from the React app
+/**
+ * Serves the static files from the React build directory.
+ * The React app's `index.html` is served for non-API requests.
+ */
 app.use(express.static(path.join(__dirname, 'build')));
 
-// API routes
+/**
+ * API Routes.
+ * Routes are grouped and imported from controllers.
+ */
 app.use('/api', userController);
 app.use('/api', inquiryController);
 app.use('/api', reservationController)
 
-// Handle any requests that don’t match the API routes by serving index.html
+/**
+ * Catch-all route to serve the React app for any undefined route.
+ */
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
-// Connect to the database and start the server
+/**
+ * Connects to the database and starts the server.
+ * If the database connection fails, the server exits with an error.
+ */
 connectToDatabase()
   .then(pool => {
     // Database connection established
