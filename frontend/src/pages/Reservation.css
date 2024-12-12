@@ -80,23 +80,26 @@
     background-color: #ccc;
     pointer-events: none;
     cursor: not-allowed;
+    border: 1px solid #e7ff7d;
 }
 
 .reservedpast {
     background-color: #d0aeae;
     pointer-events: none;
     cursor: not-allowed;
+    border: 1px solid #e7ff7d;
 }
 
 .yourreservationspast {
     background-color: #a8cea8;
     pointer-events: none;
     cursor: not-allowed;
+    border: 1px solid #e7ff7d;
 }
 
 .reserved {
     background-color: #ff5555;
-    color: #323f5e;
+    color: #74d56a;
     cursor: pointer;
     border: #323f5e 1px solid;
 
@@ -110,13 +113,14 @@
 }
 
 .yourreservations  {
-    background-color: #323f5e;
-    border: 1px solid #74d56a;
+    background-color: #74d56a;
+    border: 1px solid #e7ff7d;
+    color: #323f5e;
     cursor: default;
 }
 
 .highlighted-cell {
-    background-color: #323f5e;
+    background-color: #74d56a;
     color: #e7ff7d;
     border: 2px solid #e7ff7d;
 }
