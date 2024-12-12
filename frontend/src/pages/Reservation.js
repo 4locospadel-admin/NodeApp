@@ -56,29 +56,6 @@ function Reservation() {
     );
   };
 
-  useEffect(() => {
-    // Fetch logged-in user from local storage
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setUserEmail(parsedUser.Email);
-      setUserName(parsedUser.Name);
-      setUserRole(parsedUser.Role);
-
-      // Fetch reservations for the user
-      fetchReservations(parsedUser.Email);
-    }
-
-    // Fetch courts
-    fetchCourts();
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    fetchReservationsForDay(today);
-  }, [fetchReservations, fetchCourts, fetchReservationsForDay]);
-
-  useEffect(() => {}, [tableReservations]);
-
   /**
    * Fetches all courts available for reservations.
    */
@@ -154,6 +131,29 @@ function Reservation() {
     setSelectedDate(localDate);
     fetchReservationsForDay(localDate);
   };
+
+  useEffect(() => {
+    // Fetch logged-in user from local storage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUserEmail(parsedUser.Email);
+      setUserName(parsedUser.Name);
+      setUserRole(parsedUser.Role);
+
+      // Fetch reservations for the user
+      fetchReservations(parsedUser.Email);
+    }
+
+    // Fetch courts
+    fetchCourts();
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    fetchReservationsForDay(today);
+  }, [fetchReservations, fetchCourts, fetchReservationsForDay]);
+
+  useEffect(() => {}, [tableReservations]);
 
   /**
    * Determines the reservation status for a specific time and court.
