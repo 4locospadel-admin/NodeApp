@@ -132,7 +132,7 @@ textarea {
 .inquiry-header,
 .inquiry-summary {
   display: grid;
-  grid-template-columns: 3fr 2fr 2fr 1fr;
+  grid-template-columns: 8fr 5fr 5fr 1fr;
   align-items: center;
   border-bottom: 1px solid #E7FF7D;
   padding: 10px 0;
@@ -207,6 +207,33 @@ textarea {
 
 .notification-banner.error {
   background-color: #f44336;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 15px;
+}
+
+.filter-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  border: 1px solid #E7FF7D;
+  background-color: #323F5E;
+  color: #E7FF7D;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.filter-button:hover {
+  background-color: #E7FF7D;
+  color: #323F5E;
+}
+
+.filter-button.active {
+  background-color: #E7FF7D;
+  color: #323F5E;
 }
 
 /* Mobile styling */

@@ -26,12 +26,15 @@ function ContactForm() {
   const [message, setMessage] = useState("");
   const [placeholder, setPlaceholder] = useState("Write us anything");
   const [inquiries, setInquiries] = useState([]);
+  const [filteredInquiries, setFilteredInquiries] = useState([]);
   const [sortConfig, setSortConfig] = useState({
     key: "createdDate",
     direction: "desc",
   });
   const [showInquiries, setShowInquiries] = useState(false);
   const [notification, setNotification] = useState(null);
+  const [filter, setFilter] = useState("Open");
+
 
   /**
    * Displays a notification banner.
@@ -45,7 +48,6 @@ function ContactForm() {
 
   /**
    * Fetches inquiries from the server and updates the `inquiries` state.
-   * Admins fetch all inquiries, while regular users fetch inquiries by their email.
    */
   const fetchInquiries = () => {
     const storedUser = localStorage.getItem("user");
@@ -53,7 +55,7 @@ function ContactForm() {
       const parsedUser = JSON.parse(storedUser);
       setEmail(parsedUser.Email);
 
-      const role = parsedUser.Role; // Assume Role is available in local storage
+      const role = parsedUser.Role;
       const url =
         role === "admin"
           ? `/api/inquiries`
@@ -68,6 +70,7 @@ function ContactForm() {
         })
         .then((data) => {
           setInquiries(data);
+          setFilteredInquiries(data.filter((inq) => inq.Status === "Open")); // Default filter
         })
         .catch((error) => console.error("Error fetching inquiries:", error));
     }
@@ -137,7 +140,7 @@ function ContactForm() {
    * @param {number} Id - The ID of the inquiry to expand/collapse.
    */
   const toggleExpandRow = (Id) => {
-    setInquiries((prevInquiries) =>
+    setFilteredInquiries((prevInquiries) =>
       prevInquiries.map((inquiry) =>
         inquiry.Id === Id
           ? { ...inquiry, isExpanded: !inquiry.isExpanded }
@@ -155,7 +158,7 @@ function ContactForm() {
       sortConfig.key === key && sortConfig.direction === "asc" ? "desc" : "asc";
     setSortConfig({ key, direction: newDirection });
 
-    setInquiries((prevInquiries) =>
+    setFilteredInquiries((prevInquiries) =>
       [...prevInquiries].sort((a, b) => {
         if (a[key] < b[key]) return newDirection === "asc" ? -1 : 1;
         if (a[key] > b[key]) return newDirection === "asc" ? 1 : -1;
@@ -170,10 +173,28 @@ function ContactForm() {
    * @param {string} status - The new status to set.
    */
   const handleStatusChange = (id, status) => {
+    setFilteredInquiries((prevInquiries) =>
+      prevInquiries.map((inquiry) =>
+        inquiry.Id === id ? { ...inquiry, Status: status } : inquiry
+      )
+    );
     setInquiries((prevInquiries) =>
       prevInquiries.map((inquiry) =>
         inquiry.Id === id ? { ...inquiry, Status: status } : inquiry
       )
+    );
+  };
+
+  /**
+   * Filters inquiries based on the selected status.
+   * @param {string} status - The selected status to filter by.
+   */
+  const handleFilterChange = (status) => {
+    setFilter(status);
+    setFilteredInquiries(
+      status === "All"
+        ? inquiries
+        : inquiries.filter((inquiry) => inquiry.Status === status)
     );
   };
   
@@ -183,36 +204,46 @@ function ContactForm() {
    * @param {string} response - The new response text.
    */
   const handleResponseChange = (id, response) => {
+    setFilteredInquiries((prevInquiries) =>
+      prevInquiries.map((inquiry) =>
+        inquiry.Id === id ? { ...inquiry, Answer: response } : inquiry
+      )
+    );
     setInquiries((prevInquiries) =>
       prevInquiries.map((inquiry) =>
-        inquiry.Id === id ? { ...inquiry, Response: response } : inquiry
+        inquiry.Id === id ? { ...inquiry, Answer: response } : inquiry
       )
     );
   };
   
   /**
    * Saves the changes made to an inquiry's status or response.
+   * Sends an email with a formatted summary.
    * @param {number} id - The ID of the inquiry to save changes for.
    */
   const saveInquiryChanges = async (id) => {
     const inquiry = inquiries.find((inquiry) => inquiry.Id === id);
     if (!inquiry) return;
-  
+
     try {
       const response = await fetch(`/api/inquiries/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           status: inquiry.Status,
-          response: inquiry.Response,
+          response: inquiry.Answer,
+          subject: inquiry.Subject,
+          category: inquiry.Category,
+          description: inquiry.Description,
+          email: inquiry.Email
         }),
       });
-  
+
       if (!response.ok) throw new Error(await response.text());
-  
+
       // Show banner notification instead of alert
       showNotification("Response saved successfully!");
-  
+
       // Refetch inquiries to update the list
       fetchInquiries();
     } catch (error) {
@@ -320,6 +351,21 @@ function ContactForm() {
 
       {showInquiries && (
         <div className="inquiry-list">
+          {/* Filter Buttons */}
+          <div className="filter-buttons">
+            {["All", "Open", "In Progress", "Closed"].map((status) => (
+              <button
+                key={status}
+                className={`filter-button ${
+                  filter === status ? "active" : ""
+                }`}
+                onClick={() => handleFilterChange(status)}
+              >
+                {status}
+              </button>
+            ))}
+          </div>
+
           {/* Inquiry Header */}
           <div className="inquiry-header">
             <span onClick={() => sortInquiries("Subject")}>Subject</span>
@@ -328,7 +374,7 @@ function ContactForm() {
           </div>
 
           {/* Inquiry Rows */}
-          {inquiries.map((inquiry) => (
+          {filteredInquiries.map((inquiry) => (
             <div key={inquiry.Id} className="inquiry-row">
               {/* Summary Row */}
               <div className="inquiry-summary">
@@ -348,7 +394,7 @@ function ContactForm() {
                     <p>{inquiry.Category}</p>
                   </div>
                   <div className="detail-item">
-                    <strong>Notification:</strong>
+                    <strong>Recieve Notification:</strong>
                     <p>{inquiry.Notification ? "Yes" : "No"}</p>
                   </div>
                   <div className="detail-item">
@@ -369,11 +415,15 @@ function ContactForm() {
                   <div className="detail-item">
                     <strong>Response:</strong>
                     <textarea
-                      value={inquiry.Response || ""}
-                      onChange={(e) => handleResponseChange(inquiry.Id, e.target.value)}
+                      value={inquiry.Answer || ""}
+                      onChange={(e) =>
+                        handleResponseChange(inquiry.Id, e.target.value)
+                      }
                     ></textarea>
                   </div>
-                  <button onClick={() => saveInquiryChanges(inquiry.Id)}>Save</button>
+                  <button onClick={() => saveInquiryChanges(inquiry.Id)}>
+                    Save
+                  </button>
                 </div>
               )}
             </div>

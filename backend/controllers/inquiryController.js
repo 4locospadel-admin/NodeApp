@@ -21,6 +21,33 @@ const transporter = nodemailer.createTransport({
 });
 
 /**
+ * Sends an email with a formatted summary of the inquiry, response, and status update.
+ * @param {object} inquiry - The inquiry details.
+ */
+const sendInquiryNotification = async (inquiry) => {
+  try {
+    const emailContent = `
+      <p><strong>Category:</strong> ${inquiry.Category}</p>
+      <p><strong>Subject:</strong> ${inquiry.Subject}</p>
+      <p><strong>Message:</strong> ${inquiry.Description}</p>
+      <hr />
+      <p><strong>The response was provided:</strong> </p>
+      <p>${inquiry.Response}</p>
+      <p><strong>Status has been changed to:</strong> ${inquiry.Status}</p>
+    `;
+
+    await transporter.sendMail({
+      from: `"Support Team" <${process.env.EMAIL}>`,
+      to: inquiry.Email,
+      subject: `Update on Your Inquiry: ${inquiry.Subject}`,
+      html: emailContent,
+    });
+  } catch (error) {
+    console.error("Error sending email:", error);
+  }
+};
+
+/**
  * @route GET /inquiries
  * @description Fetch all inquiries or filter inquiries by email.
  * @queryParam {string} [email] - The email address to filter inquiries (optional).
@@ -105,58 +132,44 @@ router.post("/inquiries", async (req, res) => {
 /**
  * @route PUT /inquiries/:id
  * @description Update an existing inquiry's status or response.
- * @pathParam {number} id - The ID of the inquiry to update.
- * @bodyParam {string} [status] - The updated status of the inquiry (optional).
- * @bodyParam {string} [response] - The response to the inquiry (optional).
- * @returns {Object} 200 - Success message.
- * @returns {Object} 404 - Inquiry not found message.
- * @returns {Object} 500 - Internal server error message.
  */
 router.put("/inquiries/:id", async (req, res) => {
   const { id } = req.params;
-  const { status, response } = req.body;
+  console.log("req.body", req.body);
+  const { status, response, category, subject, description, email } = req.body;
 
   try {
     const pool = await connectToDatabase();
-
-    // Fetch inquiry details to check notifications
-    const inquiryQuery = await pool
-      .request()
-      .input("Id", sql.Int, id)
-      .query("SELECT Email, Notification FROM SupportInquiry WHERE Id = @Id");
-
-    if (inquiryQuery.recordset.length === 0) {
-      return res.status(404).json({ message: "Inquiry not found." });
-    }
-
-    const inquiry = inquiryQuery.recordset[0];
-
-    // Update inquiry
-    const updateResult = await pool
+    const result = await pool
       .request()
       .input("Id", sql.Int, id)
       .input("Status", sql.NVarChar, status || null)
       .input("Response", sql.NVarChar, response || null).query(`
         UPDATE SupportInquiry
         SET Status = ISNULL(@Status, Status),
-            Answer = ISNULL(@Response, Answer),
-            UpdatedDate = GETDATE()
+            Answer = ISNULL(@Response, Answer)
         WHERE Id = @Id;
       `);
 
-    if (updateResult.rowsAffected[0] === 0) {
+    if (result.rowsAffected[0] === 0) {
       return res.status(404).json({ message: "Inquiry not found." });
     }
 
-    // Send email if notifications are enabled
-    if (inquiry.Notification && response) {
-      await transporter.sendMail({
-        from: `"4Locos Padel" <${process.env.EMAIL}>`,
-        to: inquiry.Email,
-        subject: "Inquiry Response",
-        text: `Your inquiry\n\n${inquiry.Description} \n\nhas been responded to:\n\n${response}`,
-      });
-    }
+    // Fetch updated inquiry details for the email
+    const updatedInquiry = {
+      Id: id,
+      Status: status,
+      Response: response,
+      Category: category,
+      Subject: subject,
+      Description: description,
+      Email: email
+    };
+
+    console.log("updated:", updatedInquiry)
+
+    // Send the enhanced notification email
+    await sendInquiryNotification(updatedInquiry);
 
     res.status(200).json({ message: "Inquiry updated successfully." });
   } catch (err) {
