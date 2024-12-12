@@ -75,7 +75,7 @@ function Reservation() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     fetchReservationsForDay(today);
-  }, []);
+  }, [fetchReservations, fetchCourts, fetchReservationsForDay]);
 
   useEffect(() => {}, [tableReservations]);
 
