@@ -1,6 +1,35 @@
+/**
+ * @file About.js
+ * @description A React component for the "About" page, providing information about padel, the app, and frequently asked questions (FAQ).
+ */
+
 import React from "react";
 import "./About.css";
 
+/**
+ * Renders the "About" page of the app.
+ * 
+ * The page includes:
+ * - An introduction to padel as a sport.
+ * - A brief history of padel.
+ * - Information about the app's features.
+ * - Frequently asked questions (FAQ) related to padel and app usage.
+ * 
+ * @component
+ * @example
+ * // Usage in a React app
+ * import About from './About';
+ * 
+ * function App() {
+ *   return (
+ *     <div>
+ *       <About />
+ *     </div>
+ *   );
+ * }
+ * 
+ * export default App;
+ */
 function About() {
   return (
     <div className="about-page">

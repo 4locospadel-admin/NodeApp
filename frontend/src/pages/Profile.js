@@ -1,6 +1,22 @@
+/**
+ * @file Profile.js
+ * @description A React component for user authentication and profile management, including log in, sign up, profile updates, and password reset.
+ */
+
 import React, { useState, useEffect } from "react";
 import "./Profile.css";
 
+/**
+ * Renders the "Profile" page of the application.
+ *
+ * Features:
+ * - Log in and sign up functionality.
+ * - Displays and updates user profile details.
+ * - Password reset via email.
+ * - Logout functionality.
+ *
+ * @component
+ */
 function Profile() {
   const [isLogin, setIsLogin] = useState(true); // Toggle between login and sign-up
   const [Email, setEmail] = useState("");
@@ -13,14 +29,30 @@ function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [isEmailValid, setIsEmailValid] = useState(true);
 
+  /**
+   * Validates an email address format.
+   *
+   * @param {string} email - The email address to validate.
+   * @returns {boolean} `true` if the email is valid, otherwise `false`.
+   */
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  /**
+   * Handles user request for email change
+   *
+   * @param {Event} e - The email submission event.
+   */
   const handleEmailChange = (e) => {
     const email = e.target.value;
     setEmail(email);
     setIsEmailValid(isValidEmail(email));
   };
 
-
   useEffect(() => {
+    // Check for logged-in user on component mount
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const user = JSON.parse(storedUser);
@@ -30,13 +62,14 @@ function Profile() {
     }
   }, []);
 
+  /**
+   * Toggles between "Login" and "Sign Up" views.
+   */
   const handleToggle = () => setIsLogin(!isLogin);
 
-  const isValidEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
+  /**
+   * Toggles the profile editing mode.
+   */
   const toggleEdit = () => {
     setIsEditing((prev) => !prev);
     if (isEditing) {
@@ -45,6 +78,11 @@ function Profile() {
     }
   };
 
+  /**
+   * Handles user login or sign up form submission.
+   *
+   * @param {Event} e - The form submission event.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -90,6 +128,9 @@ function Profile() {
     }
   };
 
+  /**
+   * Handles profile updates such as name and password changes.
+   */
   const handleSaveChanges = async () => {
     if (newPassword && newPassword !== newConfirmPassword) {
       alert("Passwords do not match.");
@@ -133,7 +174,10 @@ function Profile() {
 
       const data = await response.json();
       setLoggedInUser((prev) => ({ ...prev, Name: data.Name }));
-      localStorage.setItem("user", JSON.stringify({ ...loggedInUser, Name: data.Name }));
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ ...loggedInUser, Name: data.Name })
+      );
       setNewPassword("");
       setNewConfirmPassword("");
       alert("Profile updated successfully!");
@@ -143,6 +187,9 @@ function Profile() {
     }
   };
 
+  /**
+   * Handles sending a password reset link to the user's email.
+   */
   const handlePasswordReset = async () => {
     if (!Email) {
       alert("Please enter your email to reset the password.");
@@ -165,6 +212,9 @@ function Profile() {
     }
   };
 
+  /**
+   * Logs out the currently logged-in user.
+   */
   const handleLogout = () => {
     setLoggedInUser(null);
     setName("");
@@ -202,7 +252,9 @@ function Profile() {
                 placeholder="Your Email"
                 required
               />
-              {!isEmailValid && <small className="error-text">Invalid email format.</small>}
+              {!isEmailValid && (
+                <small className="error-text">Invalid email format.</small>
+              )}
             </div>
             <div>
               <label>Password</label>
@@ -234,7 +286,9 @@ function Profile() {
           </form>
           <div className="auth-buttons">
             <button onClick={handleToggle} className="toggle-button">
-              {isLogin ? "Create an account" : "Already have an account? Log In"}
+              {isLogin
+                ? "Create an account"
+                : "Already have an account? Log In"}
             </button>
             {isLogin && (
               <button onClick={handlePasswordReset} className="reset-button">
@@ -282,7 +336,10 @@ function Profile() {
                 </div>
               </>
             )}
-            <button onClick={isEditing ? handleSaveChanges : toggleEdit} className="save-changes-button">
+            <button
+              onClick={isEditing ? handleSaveChanges : toggleEdit}
+              className="save-changes-button"
+            >
               {isEditing ? "Save Changes" : "Edit"}
             </button>
             {isEditing && (

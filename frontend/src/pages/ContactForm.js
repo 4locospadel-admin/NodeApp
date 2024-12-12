@@ -1,6 +1,23 @@
+/**
+ * @file ContactForm.js
+ * @description A React component that allows users to send inquiries, manage their past inquiries, and sort/view them in a user-friendly interface.
+ */
+
 import React, { useState, useEffect } from "react";
 import "./ContactForm.css";
 
+/**
+ * Renders the "Contact Us" form and inquiry management interface.
+ *
+ * Features:
+ * - Allows users to submit inquiries with categories, subjects, and messages.
+ * - Validates email and form fields before submission.
+ * - Fetches and displays a user's past inquiries.
+ * - Provides sorting options for inquiries by subject, status, or creation date.
+ * - Expands/collapses inquiry details for better visibility.
+ *
+ * @component
+ */
 function ContactForm() {
   const [Email, setEmail] = useState("");
   const [category, setCategory] = useState("Question");
@@ -35,13 +52,24 @@ function ContactForm() {
         })
         .catch((error) => console.error("Error fetching inquiries:", error));
     }
-  }, []); // Empty dependency array
+  }, []);
 
+  /**
+   * Validates an email address.
+   * @param {string} email - The email address to validate.
+   * @returns {boolean} `true` if the email is valid, otherwise `false`.
+   */
   const isEmailValid = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  const isFormValid = () =>
-    Email && subject && message && isEmailValid(Email);
+  /**
+   * Checks if the form is valid for submission.
+   * @returns {boolean} `true` if the form is valid, otherwise `false`.
+   */
+  const isFormValid = () => Email && subject && message && isEmailValid(Email);
 
+  /**
+   * Handles the submission of a new inquiry.
+   */
   const handleSave = async () => {
     if (!isFormValid()) return;
 
@@ -81,14 +109,24 @@ function ContactForm() {
     }
   };
 
+  /**
+   * Toggles the expansion of an inquiry row to show/hide details.
+   * @param {number} Id - The ID of the inquiry to expand/collapse.
+   */
   const toggleExpandRow = (Id) => {
     setInquiries((prevInquiries) =>
       prevInquiries.map((inquiry) =>
-        inquiry.Id === Id ? { ...inquiry, isExpanded: !inquiry.isExpanded } : inquiry
+        inquiry.Id === Id
+          ? { ...inquiry, isExpanded: !inquiry.isExpanded }
+          : inquiry
       )
     );
   };
 
+  /**
+   * Sorts inquiries based on a selected key and direction.
+   * @param {string} key - The key to sort by (e.g., "Subject", "Status", "Created").
+   */
   const sortInquiries = (key) => {
     const newDirection =
       sortConfig.key === key && sortConfig.direction === "asc" ? "desc" : "asc";
@@ -145,7 +183,8 @@ function ContactForm() {
             onChange={(e) => setReceiveNotifications(e.target.checked)}
           />
           <label htmlFor="notifications">
-            I want to receive email notifications about responses or inquiry status changes.
+            I want to receive email notifications about responses or inquiry
+            status changes.
           </label>
         </div>
 
@@ -186,8 +225,9 @@ function ContactForm() {
       <hr className="divider" />
 
       <button
-        className={`toggle-inquiries ${showInquiries ? "blue-button" : "yellow-button"
-          }`}
+        className={`toggle-inquiries ${
+          showInquiries ? "blue-button" : "yellow-button"
+        }`}
         onClick={() => setShowInquiries(!showInquiries)}
       >
         {showInquiries ? "Hide Past Inquiries" : "Show Past Inquiries"}
