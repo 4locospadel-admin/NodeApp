@@ -54,8 +54,8 @@ function ContactForm() {
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setEmail(parsedUser.Email);
-
       const role = parsedUser.Role;
+
       const url =
         role === "admin"
           ? `/api/inquiries`
@@ -70,7 +70,7 @@ function ContactForm() {
         })
         .then((data) => {
           setInquiries(data);
-          setFilteredInquiries(data.filter((inq) => inq.Status === "Open")); // Default filter
+          setFilteredInquiries(data.filter((inq) => inq.Status === filter)); // Default filter
         })
         .catch((error) => console.error("Error fetching inquiries:", error));
     }

@@ -77,18 +77,18 @@ router.post("/login", async (req, res) => {
       .input("Email", sql.NVarChar, Email)
       .query("SELECT * FROM [User] WHERE Email = @Email");
 
-    if (user.recordset.length === 0) return res.status(400).send("Invalid credentials1.");
+    if (user.recordset.length === 0) return res.status(400).send("Invalid credentials.");
 
     // Verify Password
     const isValid = await bcrypt.compare(Password, user.recordset[0].Password);
-    if (!isValid) return res.status(400).send("Invalid credentials2.");
+    if (!isValid) return res.status(400).send("Invalid credentials.");
 
     // Create JWT
     const token = jwt.sign({ Email, role: user.recordset[0].Role || "user" }, SECRET, {
       expiresIn: "1h",
     });
 
-    res.status(200).json({ token, Email, Name: user.recordset[0].Name });
+    res.status(200).json({ token, Email, Name: user.recordset[0].Name, Role: user.recordset[0].Role });
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal server error.");

@@ -32,12 +32,12 @@ const sendInquiryNotification = async (inquiry) => {
       <p><strong>Message:</strong> ${inquiry.Description}</p>
       <hr />
       <p><strong>The response was provided:</strong> </p>
-      <p>${inquiry.Response}</p>
+      <p>${inquiry.Response || ""}</p>
       <p><strong>Status has been changed to:</strong> ${inquiry.Status}</p>
     `;
 
     await transporter.sendMail({
-      from: `"Support Team" <${process.env.EMAIL}>`,
+      from: `"4Locos Padel Support Team" <${process.env.EMAIL}>`,
       to: inquiry.Email,
       subject: `Update on Your Inquiry: ${inquiry.Subject}`,
       html: emailContent,
@@ -61,15 +61,13 @@ router.get("/inquiries", async (req, res) => {
     const pool = await connectToDatabase();
 
     let query = "SELECT * FROM SupportInquiry";
-    if (email) {
-      query += " WHERE Email = @Email";
-    }
-
     const request = pool.request();
     if (email) {
+      query += " WHERE Email = @Email";
       request.input("Email", sql.NVarChar, email);
     }
 
+    query += " ORDER BY Created DESC";
     const result = await request.query(query);
     res.status(200).json(result.recordset);
   } catch (error) {
@@ -135,7 +133,6 @@ router.post("/inquiries", async (req, res) => {
  */
 router.put("/inquiries/:id", async (req, res) => {
   const { id } = req.params;
-  console.log("req.body", req.body);
   const { status, response, category, subject, description, email } = req.body;
 
   try {
@@ -165,8 +162,6 @@ router.put("/inquiries/:id", async (req, res) => {
       Description: description,
       Email: email
     };
-
-    console.log("updated:", updatedInquiry)
 
     // Send the enhanced notification email
     await sendInquiryNotification(updatedInquiry);

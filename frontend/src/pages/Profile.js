@@ -222,6 +222,7 @@ function Profile() {
     setPassword("");
     localStorage.removeItem("user");
     localStorage.removeItem("token");
+    localStorage.removeItem("role");
     alert("Logged out successfully!");
   };
 
