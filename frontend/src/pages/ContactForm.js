@@ -3,7 +3,7 @@
  * @description A React component that allows users to send inquiries, manage their past inquiries, and sort/view them in a user-friendly interface.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "./ContactForm.css";
 
 /**
@@ -49,18 +49,18 @@ function ContactForm() {
   /**
    * Fetches inquiries from the server and updates the `inquiries` state.
    */
-  const fetchInquiries = () => {
+  const fetchInquiries = useCallback(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setEmail(parsedUser.Email);
       const role = parsedUser.Role;
-
+  
       const url =
         role === "admin"
           ? `/api/inquiries`
           : `/api/inquiries?email=${encodeURIComponent(parsedUser.Email)}`;
-
+  
       fetch(url)
         .then((response) => {
           if (!response.ok) {
@@ -74,11 +74,11 @@ function ContactForm() {
         })
         .catch((error) => console.error("Error fetching inquiries:", error));
     }
-  };
-
+  }, [filter]); // Add dependencies here
+  
   useEffect(() => {
     fetchInquiries();
-  }, []);
+  }, [fetchInquiries]);
 
   /**
    * Validates an email address.
