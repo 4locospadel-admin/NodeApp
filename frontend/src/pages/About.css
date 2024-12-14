@@ -51,6 +51,44 @@
     margin-bottom: 15px;
     color: #e1e6ee;
   }
+
+  .section {
+    margin-bottom: 15px; 
+    border: 1px solid #ccc; 
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  
+  .section-header {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center; 
+    cursor: pointer; 
+    padding: 10px 15px; 
+    background-color: #2e304d;
+    border-radius: 10px; 
+    font-weight: bold;
+  }
+  
+  .section-header:hover {
+    background-color: #55588b;
+  }
+  
+  .section-title {
+    flex-grow: 1;
+    text-align: left;
+  }
+  
+  .section-arrow {
+    font-size: 18px;
+  }
+  
+  .section-content {
+    padding: 10px 15px; 
+    background-color: #40436c; 
+    transition: max-height 0.3s ease-out;
+    border-radius: 10px; 
+  }
   
   @media (max-width: 768px) {
     .about-page {
@@ -65,4 +103,37 @@
     h1, h2 {
       font-size: 1.5rem;
     }
+  }
+
+  .about-page {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+  }
+  
+  .language-selector {
+    margin-bottom: 20px;
+    width: 150px;
+  }
+  
+  .language-selector label {
+    margin-right: 10px;
+  }
+  
+  .section h2 {
+    cursor: pointer;
+    color: #E7FF7D;
+    margin: 10px 0;
+  }
+  
+  .section h2:hover {
+    text-decoration: underline;
+  }
+  
+  .section p {
+    margin: 10px 0 20px;
+  }
+  
+  .faq-section {
+    border-top: 1px solid #ddd;
+    padding-top: 20px;
   }
