@@ -62,6 +62,7 @@ This project is a **Padel Court Reservation System** that provides a user-friend
      EMAIL=<Your SMTP Email Address>
      EMAIL_PASSWORD=<Your SMTP Email Password>
      ```
+4. **Database Structure Creation**: Navigate to /backend/config/DB_SETUP.SQL and use the SQL commands to create the tables with neccessary columns
 4. **React Setup**: Ensure a modern browser is available for React.
 
 ---
