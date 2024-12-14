@@ -36,7 +36,6 @@ This project is a **Padel Court Reservation System** that provides a user-friend
 
 ### Frontend
 - **React.js**: Built with a modular React.js architecture.
-- **React DatePicker**: For selecting reservation dates.
 
 ### Backend
 - **Node.js**: Backend server handling API requests.
@@ -70,6 +69,63 @@ This project is a **Padel Court Reservation System** that provides a user-friend
 ### Installation
 
 #### Backend
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
+1. Navigate to the backend directory: `cd backend`
+2. Install dependencies: `npm install`
+3. Start the server: `npm start`
+
+#### Frontend
+1. Navigate to the frontend directory: `cd frontend`
+2. Install dependencies: `npm install`
+3. Start the React app: `npm start`
+
+---
+
+## Usage
+
+### 1. User Login
+- Log in as a **user** or **admin**.
+
+### 2. Reservations
+- Use the calendar to select a date.
+- View available courts and times.
+- Click on a time slot to create a reservation.
+- Expand a reservation row to cancel a reservation (**users only if allowed, admins for all reservations**).
+
+### 3. Inquiries
+- Submit a new inquiry via the **Contact Us** page.
+- View past inquiries and sort them by subject, status, or creation date.
+- Expand inquiries to view details.
+- Admins can update inquiry responses and statuses.
+
+---
+
+## API Endpoints
+
+### Reservations
+- `GET /api/reservations?email=<email>`: Get reservations for a user.
+- `GET /api/reservations/day?date=<yyyy-MM-dd>`: Get reservations for a specific day.
+- `POST /api/reservations`: Create a new reservation.
+- `PUT /api/reservations/:id/cancel`: Cancel a reservation.
+
+### Inquiries
+- `GET /api/inquiries?email=<email>`: Get inquiries for a user.
+- `POST /api/inquiries`: Submit a new inquiry.
+- `PUT /api/inquiries/:id`: Update an inquiry (response or status).
+
+---
+
+## Project Structure
+
+project-root/
+│
+├── backend/
+│   ├── controllers/         # API routes for reservations and inquiries
+│   ├── dbConnection.js # Database connection setup
+│   └── server.js          # Express server entry point
+│
+├── frontend/
+│   ├── public/         # Public static files
+│   ├── src/            # React source code
+│   │   ├── components/ # React components
+│   │   ├── pages/      # Application pages (Reservations, ContactForm, etc.)
+│   │   └── App.js      # Main React application file
