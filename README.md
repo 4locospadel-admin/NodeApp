@@ -99,7 +99,7 @@ This project is a **Padel Court Reservation System** that provides a user-friend
 
 ---
 
-## API Endpoints
+## Public API Endpoints
 
 ### Reservations
 - `GET /api/reservations?email=<email>`: Get reservations for a user.
@@ -111,22 +111,3 @@ This project is a **Padel Court Reservation System** that provides a user-friend
 - `GET /api/inquiries?email=<email>`: Get inquiries for a user.
 - `POST /api/inquiries`: Submit a new inquiry.
 - `PUT /api/inquiries/:id`: Update an inquiry (response or status).
-
----
-
-## Project Structure
-'''
-project-root/
-│
-├── backend/
-│   ├── controllers/         # API routes for reservations and inquiries
-│   ├── dbConnection.js # Database connection setup
-│   └── server.js          # Express server entry point
-│
-├── frontend/
-│   ├── public/         # Public static files
-│   ├── src/            # React source code
-│   │   ├── components/ # React components
-│   │   ├── pages/      # Application pages (Reservations, ContactForm, etc.)
-│   │   └── App.js      # Main React application file
-'''
