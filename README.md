@@ -68,16 +68,9 @@ This project is a **Padel Court Reservation System** that provides a user-friend
 
 ### Installation
 
-#### Backend
-1. Navigate to the backend directory: `cd backend`
-2. Install dependencies: `npm install`
-3. Start the server: `npm start`
+Run command 'npm run localhost'
 
-#### Frontend
-1. Navigate to the frontend directory: `cd frontend`
-2. Install dependencies: `npm install`
-3. Start the React app: `npm start`
-
+This will build backend and frontend, install all the dependencies from the package.json files, copy the build folder from frontend to backend and start the server. 
 ---
 
 ## Usage
