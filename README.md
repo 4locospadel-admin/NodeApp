@@ -70,7 +70,7 @@ This project is a **Padel Court Reservation System** that provides a user-friend
 
 Run command 'npm run localhost'
 
-- This will build backend and frontend, install all the dependencies from the package.json files, copy the build folder from frontend to backend and start the server. 
+- This will build backend and frontend, install all the dependencies from the package.json files, copy the build folder from frontend to backend and start the server. Page will be then available in the browser at url http://localhost:8080/
 ---
 
 ## Usage

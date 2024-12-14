@@ -75,49 +75,34 @@ function Reservation() {
    * Fetches reservations for the user or all reservations for admins.
    * @param {string} email - User email (ignored if role is admin).
    */
-  const fetchReservations = useCallback(
-    (email) => {
-      const url =
-        userRole === "admin"
-          ? `/api/reservations?role=admin`
-          : `/api/reservations?email=${encodeURIComponent(email)}`;
+  const fetchReservations = useCallback(() => {
+    const url =
+      userRole === "admin"
+        ? "/api/reservations"
+        : `/api/reservations?email=${encodeURIComponent(userEmail)}`;
 
-      fetch(url)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-          return response.json();
-        })
-        .then(setReservations)
-        .catch((error) => console.error("Error fetching reservations:", error));
-    },
-    [userRole] // Dependency to ensure the callback updates when role changes
-  );
+    fetch(url)
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        return response.json();
+      })
+      .then(setReservations)
+      .catch((error) => console.error("Error fetching reservations:", error));
+  }, [userRole, userEmail]);
 
   /**
    * Fetches all reservations for a specific day.
    * @param {Date} date - The date for which reservations are to be fetched.
    */
   const fetchReservationsForDay = useCallback((date) => {
-    const localDate = new Date(date);
-    const year = localDate.getFullYear();
-    const month = String(localDate.getMonth() + 1).padStart(2, "0");
-    const day = String(localDate.getDate()).padStart(2, "0");
-
-    const formattedDate = `${year}-${month}-${day}`;
-
+    const formattedDate = date.toISOString().split("T")[0];
     fetch(`/api/reservations/day?date=${formattedDate}`)
       .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         return response.json();
       })
-      .then(setTableReservations)
-      .catch((error) =>
-        console.error("Error fetching reservations for the day:", error)
-      );
+      .then(setReservations)
+      .catch((error) => console.error("Error fetching reservations for day:", error));
   }, []);
 
   /**
@@ -125,15 +110,11 @@ function Reservation() {
    * @param {Date} date - The selected date.
    */
   const handleDateChange = (date) => {
-    const localDate = new Date(date);
-    localDate.setHours(0, 0, 0, 0);
-
-    setSelectedDate(localDate);
-    fetchReservationsForDay(localDate);
+    setSelectedDate(date);
+    fetchReservationsForDay(date);
   };
 
   useEffect(() => {
-    // Fetch logged-in user from local storage
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
@@ -141,17 +122,10 @@ function Reservation() {
       setUserName(parsedUser.Name);
       setUserRole(parsedUser.Role);
 
-      // Fetch reservations for the user
-      fetchReservations(parsedUser.Email);
+      fetchReservations();
     }
-
-    // Fetch courts
     fetchCourts();
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    fetchReservationsForDay(today);
-  }, [fetchReservations, fetchCourts, fetchReservationsForDay]);
+  }, [fetchReservations, fetchCourts]);
 
   useEffect(() => {}, [tableReservations]);
 
@@ -166,7 +140,7 @@ function Reservation() {
     const [hours, minutes] = time.split(":").map(Number);
     startDate.setHours(hours, minutes, 0, 0);
 
-    const reservation = tableReservations.find(
+    const reservation = reservations.find(
       (res) =>
         res.CourtID === courtId &&
         new Date(res.Date).toDateString() === selectedDate.toDateString() &&
@@ -175,12 +149,8 @@ function Reservation() {
         res.Status !== "Cancelled"
     );
 
-    const now = new Date(); // Current time for comparison
-
-    if (!reservation) return startDate < now ? "AvailablePast" : "Available";
-    const resultClass =
-      reservation.Email === userEmail ? "YourReservations" : "Reserved";
-    return startDate < now ? resultClass + "Past" : resultClass;
+    if (!reservation) return "Available";
+    return reservation.Email === userEmail ? "YourReservation" : "Reserved";
   };
 
   /**
@@ -262,15 +232,13 @@ function Reservation() {
    * @param {object} details - The reservation details.
    */
   const createReservation = async (details) => {
-    if (loading) return; // Prevent further clicks if already in process
     setLoading(true);
-
     try {
       const response = await fetch("/api/reservations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          court: String(details.courtId),
+          court: details.courtId,
           email: userEmail,
           name: userName,
           date: details.date,
@@ -280,10 +248,8 @@ function Reservation() {
       });
 
       if (!response.ok) throw new Error(await response.text());
-
       alert("Reservation created successfully.");
-      fetchReservations(userEmail);
-      fetchReservationsForDay(selectedDate);
+      fetchReservations();
     } catch (error) {
       console.error("Error creating reservation:", error);
       alert("Failed to create reservation.");
@@ -297,15 +263,10 @@ function Reservation() {
    * @param {number} id - The ID of the reservation to cancel.
    */
   const cancelReservation = async (id) => {
-    if (loading) return;
     const reason = prompt("Please provide a reason for cancellation:");
-    if (!reason) {
-      alert("Cancellation reason is required.");
-      return;
-    }
+    if (!reason) return;
 
-    setLoading(true); // Start loading
-
+    setLoading(true);
     try {
       const response = await fetch(`/api/reservations/${id}/cancel`, {
         method: "PUT",
@@ -314,15 +275,13 @@ function Reservation() {
       });
 
       if (!response.ok) throw new Error(await response.text());
-
       alert("Reservation cancelled successfully.");
-      fetchReservations(userEmail); // Refresh reservations
-      fetchReservationsForDay(selectedDate); // Refresh table reservations
+      fetchReservations();
     } catch (error) {
       console.error("Error cancelling reservation:", error);
       alert("Failed to cancel reservation.");
     } finally {
-      setLoading(false); // End loading
+      setLoading(false);
     }
   };
 
@@ -585,19 +544,6 @@ function Reservation() {
                     <td>{formatTime(reservation.EndTime)}</td>
                     <td>{reservation.CourtName}</td>
                     <td>{reservation.Status}</td>
-                    {userRole === "admin" && (
-                      <td>
-                        <button
-                          className="cancel-button"
-                          onClick={(e) => {
-                            e.stopPropagation(); // Prevent row collapse
-                            cancelReservation(reservation.ReservationID);
-                          }}
-                        >
-                          Cancel
-                        </button>
-                      </td>
-                    )}
                   </tr>
 
                   {/* Expandable row */}
@@ -619,6 +565,9 @@ function Reservation() {
                               <strong>Cancellation Reason:</strong>{" "}
                               {reservation.CancellationReason}
                             </p>
+                          )}
+                          {reservation.Status === "Created" && new Date(reservation.Date) >= new Date() && (
+                            <button onClick={() => cancelReservation(reservation.ReservationID)}>Cancel</button>
                           )}
                         </div>
                       </td>
