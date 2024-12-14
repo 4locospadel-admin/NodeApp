@@ -101,7 +101,7 @@ function Reservation() {
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         return response.json();
       })
-      .then(setReservations)
+      .then(setTableReservations) // Set tableReservations here
       .catch((error) => console.error("Error fetching reservations for day:", error));
   }, []);
 
