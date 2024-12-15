@@ -40,16 +40,6 @@ function Reservation() {
   const [reservationModal, setReservationModal] = useState(null);
   const [confirmationModal, setConfirmationModal] = useState(null);
   const [selectedDuration, setSelectedDuration] = useState(1);
-  const [initialized, setInitialized] = useState(false);
-
-useEffect(() => {
-  if (!initialized) {
-    fetchReservations();
-    fetchCourts();
-    fetchReservationsForDay(new Date());
-    setInitialized(true);
-  }
-}, [initialized]);
 
   // List of time slots (8:00 AM to 10:00 PM)
   const times = Array.from(
