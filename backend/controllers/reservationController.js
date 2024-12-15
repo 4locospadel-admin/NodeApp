@@ -153,7 +153,7 @@ router.post("/reservations", async (req, res) => {
     const courtQuery = await pool
       .request()
       .input("CourtID", sql.NVarChar, String(court))
-      .query("SELECT CourtID FROM Court WHERE CourtID = @CourtID");
+      .query("SELECT CourtName, CourtID FROM Court WHERE CourtID = @CourtID");
 
     const courtID = courtQuery.recordset[0]?.CourtID;
     const courtName = courtQuery.recordset[0]?.CourtName;
