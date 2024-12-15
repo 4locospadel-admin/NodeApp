@@ -51,6 +51,7 @@ const formatTime = (timeString) => {
   }
 };
 
+
 /**
  * Generates an iCalendar event string for a reservation.
  * @param {Object} reservation - The reservation details.
@@ -70,8 +71,16 @@ const generateCalendarEvent = (reservation) => {
     const [day, month, year] = reservation.date.split("/");
     const normalizedDate = `${year}-${month}-${day}`;
 
-    const start = new Date(`${normalizedDate}T${reservation.startTime}`);
-    const end = new Date(`${normalizedDate}T${reservation.endTime}`);
+    const formatTime = (time) => {
+      const [hours, minutes] = time.split(":");
+      return `${hours.padStart(2, "0")}:${minutes.padStart(2, "0")}`;
+    };
+    
+    const startTime = formatTime(reservation.startTime);
+    const endTime = formatTime(reservation.endTime);
+    
+    const start = new Date(`${normalizedDate}T${startTime}`);
+    const end = new Date(`${normalizedDate}T${endTime}`);
 
     // Check if the constructed dates are valid
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
@@ -125,18 +134,29 @@ router.post("/reservations", async (req, res) => {
       Date.UTC(Number(year), Number(month) - 1, Number(day), 0, 0, 0)
     );
 
-    const sqlStartTime = startTime + ":00";
-    const sqlEndTime = endTime + ":00";
+    // Adjust startTime and endTime by subtracting 1 hour
+    const adjustTime = (time) => {
+      const [hours, minutes] = time.split(":").map(Number);
+      const adjustedHours = (hours - 1 + 24) % 24; // Ensure hours stay within 0-23 range
+      return `${String(adjustedHours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+    };
+
+    const adjustedStartTime = adjustTime(startTime); // Subtract 1 hour from startTime
+    const adjustedEndTime = adjustTime(endTime); // Subtract 1 hour from endTime
+
+    const sqlStartTime = adjustedStartTime + ":00";
+    const sqlEndTime = adjustedEndTime + ":00";
 
     const pool = await connectToDatabase();
 
     // Validate court
     const courtQuery = await pool
       .request()
-      .input("CourtID", sql.NVarChar, court)
+      .input("CourtID", sql.NVarChar, String(court))
       .query("SELECT CourtID FROM Court WHERE CourtID = @CourtID");
 
     const courtID = courtQuery.recordset[0]?.CourtID;
+    const courtName = courtQuery.recordset[0]?.CourtName;
     if (!courtID) return res.status(400).send("Invalid court.");
 
     // Insert reservation
@@ -167,7 +187,7 @@ router.post("/reservations", async (req, res) => {
       from: `"4Locos Padel" <${process.env.EMAIL}>`,
       to: email,
       subject: "Reservation Created",
-      text: `Your reservation for ${court} on ${date} from ${startTime} to ${endTime} has been created.`,
+      text: `Your reservation for ${courtName} on ${date} from ${startTime} to ${endTime} has been created.`,
       icalEvent: {
         content: calendarEvent,
         method: "REQUEST",
@@ -236,9 +256,9 @@ router.put("/reservations/:id/cancel", async (req, res) => {
       subject: "Reservation Cancelled",
       text: `Your reservation for ${reservation.CourtName} on ${formatDate(
         reservation.Date
-      )} from ${formatTime(reservation.StartTime)} to ${formatTime(
+      )} from ${reservation.StartTime} to ${
         reservation.EndTime
-      )} has been cancelled.\nReason: ${CancellationReason}`,
+      } has been cancelled.\nReason: ${CancellationReason}`,
     });
 
     res.status(200).send("Reservation cancelled successfully.");
@@ -256,13 +276,13 @@ router.put("/reservations/:id/cancel", async (req, res) => {
  * @returns {string} 500 - Internal server error message.
  */
 router.get("/reservations", async (req, res) => {
-  const { email, role } = req.query; // Include role in the request query
+  const { email } = req.query; // Include role in the request query
 
   try {
     const pool = await connectToDatabase();
 
     let query;
-    if (role === "admin") {
+    if (!email) {
       // Fetch all reservations for admins
       query = `
                   SELECT 

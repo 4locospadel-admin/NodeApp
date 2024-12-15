@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from "react";
+import { format } from 'date-fns';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./Reservation.css";
@@ -54,6 +55,22 @@ function Reservation() {
     setExpandedRows((prevExpandedRows) =>
       prevExpandedRows.includes(index) ? [] : [index]
     );
+  };
+
+  /**
+   * Compares two dates by normalizing them to midnight.
+   * @param {string|Date} reservationDate - The date to compare.
+   * @returns {boolean} - True if the reservation date is the same or after today.
+   */
+  const isSameOrAfterToday = (reservationDate) => {
+    const today = new Date();
+    const resDate = new Date(reservationDate);
+
+    // Normalize both dates to midnight
+    today.setHours(0, 0, 0, 0);
+    resDate.setHours(0, 0, 0, 0);
+
+    return resDate >= today;
   };
 
   /**
@@ -125,7 +142,7 @@ function Reservation() {
       fetchReservations();
     }
     fetchCourts();
-  }, [fetchReservations, fetchCourts]);
+  }, [fetchReservations, fetchCourts, fetchReservationsForDay]);
 
   useEffect(() => {}, [tableReservations]);
 
@@ -137,15 +154,15 @@ function Reservation() {
    */
   const getReservationStatus = (time, courtId) => {
     const startDate = new Date(selectedDate);
-    const [hours, minutes] = time.split(":").map(Number);
-    startDate.setHours(hours, minutes, 0, 0);
+    const [hours] = time.split(":").map(Number);
+    startDate.setHours(hours, 0, 0, 0);
 
     const reservation = reservations.find(
       (res) =>
         res.CourtID === courtId &&
         new Date(res.Date).toDateString() === selectedDate.toDateString() &&
-        new Date(res.StartTime).getHours() <= startDate.getHours() &&
-        new Date(res.EndTime).getHours() > startDate.getHours() &&
+        new Date(res.StartTime).getUTCHours() <= startDate.getUTCHours() &&
+        new Date(res.EndTime).getUTCHours() > startDate.getUTCHours() &&
         res.Status !== "Cancelled"
     );
 
@@ -182,6 +199,7 @@ function Reservation() {
       const reservationEndHour = new Date(res.EndTime).getHours();
 
       return (
+        res.Status !== "Cancelled" &&
         res.CourtID === court.CourtID &&
         isSameDate &&
         cellHours >= reservationStartHour &&
@@ -309,24 +327,31 @@ function Reservation() {
    * @param {string|Date} date - The date to format.
    * @returns {string} The formatted date string.
    */
-  const formatDate = (date) => new Date(date).toLocaleDateString("en-GB");
+  const formatDate = (date) => {
+    try {
+      return format(new Date(date), "dd/MM/yyyy");
+    } catch (error) {
+      console.error("Invalid date format:", date);
+      return "Invalid Date";
+    }
+  };
 
   /**
-   * Formats a time string to "HH:mm".
+   * Formats a time string to "HH:mm" in the specified timezone.
    * @param {string} timeString - The time string to format.
+   * @param {string} timeZone - The timezone to format the time for.
    * @returns {string} The formatted time string.
    */
-  const formatTime = (timeString) => {
+  const formatTime = (timeString, timeZone = "Europe/Bratislava") => {
     try {
-      const date = new Date(timeString);
-      if (isNaN(date.getTime())) {
-        throw new Error("Invalid date");
-      }
-      return date.toLocaleTimeString([], {
+      const date = new Date(timeString); // Parse the UTC time
+      const formatter = new Intl.DateTimeFormat("en-GB", {
+        timeZone, // Specify the desired time zone
         hour: "2-digit",
         minute: "2-digit",
-        hourCycle: "h23",
+        hourCycle: "h23", // 24-hour format
       });
+      return formatter.format(date); // Format the date in the desired time zone
     } catch (error) {
       console.error("Invalid time format:", timeString);
       return "Invalid Time";
@@ -373,7 +398,7 @@ function Reservation() {
               {courts.map((court) => {
                 const status = getReservationStatus(time, court.CourtID);
                 const isClickable =
-                  status === "Available" || status === "YourReservations";
+                  status === "Available" || status === "YourReservation";
 
                 return (
                   <td
@@ -540,8 +565,8 @@ function Reservation() {
                   {/* Top-level row */}
                   <tr onClick={() => toggleRow(index)}>
                     <td>{formatDate(reservation.Date)}</td>
-                    <td>{formatTime(reservation.StartTime)}</td>
-                    <td>{formatTime(reservation.EndTime)}</td>
+                    <td>{formatTime(reservation.StartTime, "Europe/Bratislava")}</td>
+                    <td>{formatTime(reservation.EndTime, "Europe/Bratislava")}</td>
                     <td>{reservation.CourtName}</td>
                     <td>{reservation.Status}</td>
                   </tr>
@@ -549,7 +574,7 @@ function Reservation() {
                   {/* Expandable row */}
                   {expandedRows.includes(index) && (
                     <tr className="expanded-row">
-                      <td colSpan={userRole === "admin" ? "6" : "5"}>
+                      <td colSpan= "5">
                         <div className="expanded-content">
                           <p>
                             <strong>Name:</strong> {reservation.Name}
@@ -566,7 +591,7 @@ function Reservation() {
                               {reservation.CancellationReason}
                             </p>
                           )}
-                          {reservation.Status === "Created" && new Date(reservation.Date) >= new Date() && (
+                          {reservation.Status === "Created" && isSameOrAfterToday(reservation.Date) && (
                             <button onClick={() => cancelReservation(reservation.ReservationID)}>Cancel</button>
                           )}
                         </div>

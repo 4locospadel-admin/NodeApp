@@ -112,9 +112,9 @@
     cursor: pointer;
 }
 
-.yourreservations  {
+.yourreservation  {
     background-color: #74d56a;
-    border: 1px solid #e7ff7d;
+    border: 1px solid #323f5e;
     color: #323f5e;
     cursor: default;
 }
@@ -122,7 +122,7 @@
 .highlighted-cell {
     background-color: #74d56a;
     color: #e7ff7d;
-    border: 2px solid #e7ff7d;
+    border: 2px solid #323f5e;
 }
 
 .hour-cell {
