@@ -315,6 +315,7 @@ router.get("/reservations", async (req, res) => {
       .query(query);
 
     res.status(200).json(queryResult.recordset);
+    console.log("returned set",queryResult.recordset )
   } catch (error) {
     console.error("Error fetching reservations:", error);
     res.status(500).send("Internal server error.");

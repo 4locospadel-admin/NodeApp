@@ -40,6 +40,16 @@ function Reservation() {
   const [reservationModal, setReservationModal] = useState(null);
   const [confirmationModal, setConfirmationModal] = useState(null);
   const [selectedDuration, setSelectedDuration] = useState(1);
+  const [initialized, setInitialized] = useState(false);
+
+useEffect(() => {
+  if (!initialized) {
+    fetchReservations();
+    fetchCourts();
+    fetchReservationsForDay(new Date());
+    setInitialized(true);
+  }
+}, [initialized]);
 
   // List of time slots (8:00 AM to 10:00 PM)
   const times = Array.from(
@@ -93,6 +103,7 @@ function Reservation() {
    * @param {string} email - User email (ignored if role is admin).
    */
   const fetchReservations = useCallback(() => {
+    console.log("fetching all")
     const url =
       userRole === "admin"
         ? "/api/reservations"
@@ -138,10 +149,12 @@ function Reservation() {
       setUserEmail(parsedUser.Email);
       setUserName(parsedUser.Name);
       setUserRole(parsedUser.Role);
+      console.log("use effect")
 
       fetchReservations();
     }
     fetchCourts();
+    fetchReservationsForDay(new Date());
   }, [fetchReservations, fetchCourts, fetchReservationsForDay]);
 
   useEffect(() => {}, [tableReservations]);
@@ -157,7 +170,7 @@ function Reservation() {
     const [hours] = time.split(":").map(Number);
     startDate.setHours(hours, 0, 0, 0);
 
-    const reservation = reservations.find(
+    const reservation = tableReservations.find(
       (res) =>
         res.CourtID === courtId &&
         new Date(res.Date).toDateString() === selectedDate.toDateString() &&
