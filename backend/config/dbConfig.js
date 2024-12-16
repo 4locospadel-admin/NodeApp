@@ -35,10 +35,10 @@ require('dotenv').config({ override: true });
  * @type {DBConfig}
  */
 const dbConfig = {
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    server: process.env.DB_SERVER,
-    database: process.env.DB_DATABASE,
+    user: process.env.DB_USER || 'your-db-username',
+    password: process.env.DB_PASSWORD || 'your-db-password',
+    server: process.env.DB_SERVER || 'your-db-server',
+    database: process.env.DB_DATABASE || 'your-database-name',
     options: {
         encrypt: true,
         enableArithAbort: true

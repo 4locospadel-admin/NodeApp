@@ -3,9 +3,22 @@
  * @description Handles database connection pooling using `mssql` for efficient database operations.
  */
 
-const sql = require('mssql');
-const dbConfig = require('./config/dbConfig');
+const sql = require("mssql");
+const dbConfig = require("./config/dbConfig");
 let poolPromise;
+
+/**
+ * Mock database connection for testing without a real database.
+ */
+function mockDatabaseConnection() {
+  console.log("Running in mock mode: Database connection is disabled.");
+  return {
+    request: () => ({
+      query: async () => ({ recordset: [] }), // Return empty results
+      input: () => this,
+    }),
+  };
+}
 
 /**
  * Establishes and manages a connection to the database using a connection pool.
@@ -29,21 +42,28 @@ let poolPromise;
  * }
  */
 async function connectToDatabase() {
-    if (!poolPromise) {
-        poolPromise = sql.connect(dbConfig)
-            .then(pool => {
-                console.log('Connected to the database');
-                return pool;
-            })
-            .catch(err => {
-                console.error('Database connection failed:', err);
-                poolPromise = null;
-                throw err;
-            });
-    }
-    return poolPromise;
+  if (true) {
+    return mockDatabaseConnection();
+  }
+  
+ /*
+  if (!poolPromise) {
+    poolPromise = sql
+      .connect(dbConfig)
+      .then((pool) => {
+        console.log("Connected to the database");
+        return pool;
+      })
+      .catch((err) => {
+        console.error("Database connection failed:", err);
+        poolPromise = null;
+        throw err;
+      });
+  }
+  return poolPromise;
+ */
 }
 
 module.exports = {
-    connectToDatabase
+  connectToDatabase,
 };
