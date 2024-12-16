@@ -66,12 +66,30 @@ This project is a **Padel Court Reservation System** that provides a user-friend
 4. **React Setup**: Ensure a modern browser is available for React.
 
 ---
+### Getting Started
 
-### Installation
+To get a copy of the project up and running on your local machine, follow these steps:
 
-Run command 'npm run localhost'
+1. **Clone the Repository**:
+   Use the following command to clone the repository:
+   ```bash
+   git clone https://github.com/4locospadel-admin/NodeApp
+   ```
 
-- This will build backend and frontend, install all the dependencies from the package.json files, copy the build folder from frontend to backend and start the server. Page will be then available in the browser at url http://localhost:8080/
+2. **Navigate to the Project Directory**:
+
+  ```bash
+   cd NodeApp
+   ```
+3. **Install, Build and Run**
+
+  Run command
+  ```bash
+   npm run localhost
+   ```
+
+  - "localhost" is a name of the script saved in the ./package.json, which is a chain of bash commands
+  - This will build backend and frontend, install all the dependencies from the package.json files, copy the build folder from frontend to backend and start the server. Page will be then available in the browser at url http://localhost:8080/
 ---
 
 ## Usage
