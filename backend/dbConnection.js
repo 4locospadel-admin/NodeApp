@@ -42,7 +42,7 @@ function mockDatabaseConnection() {
  * }
  */
 async function connectToDatabase() {
-  if (process.env.MOCK_DB === true) {
+  if (process.env.MOCK_DB == "true") {
     return mockDatabaseConnection();
   }
   

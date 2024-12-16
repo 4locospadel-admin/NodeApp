@@ -73,21 +73,21 @@ To get a copy of the project up and running on your local machine, follow these 
 
 1. **Clone the Repository**:
    Use the following command to clone the repository:
-   ```bash
-   git clone https://github.com/4locospadel-admin/NodeApp
-   ```
+  ```bash
+  git clone https://github.com/4locospadel-admin/NodeApp
+  ```
 
 2. **Navigate to the Project Directory**:
 
   ```bash
-   cd NodeApp
-   ```
+  cd NodeApp
+  ```
 3. **Install, Build and Run**
 
   Run command
   ```bash
-   npm run localhost
-   ```
+  npm run localhost
+  ```
 
   - "localhost" is a name of the script saved in the ./package.json, which is a chain of bash commands
   - This will build backend and frontend, install all the dependencies from the package.json files, copy the build folder from frontend to backend and start the server. Page will be then available in the browser at url http://localhost:8080/
