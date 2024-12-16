@@ -63,7 +63,8 @@ This project is a **Padel Court Reservation System** that provides a user-friend
      EMAIL_PASSWORD=<Your SMTP Email Password>
      ```
 4. **Database Structure Creation**: Navigate to /backend/config/DB_SETUP.SQL and use the SQL commands to create the tables with neccessary columns
-4. **React Setup**: Ensure a modern browser is available for React.
+5. **Database Connection**: When the database is creatd, please change the variable in the .env file MOCK_DB to **false** 
+6. **React Setup**: Ensure a modern browser is available for React.
 
 ---
 ### Getting Started
@@ -90,6 +91,7 @@ To get a copy of the project up and running on your local machine, follow these 
 
   - "localhost" is a name of the script saved in the ./package.json, which is a chain of bash commands
   - This will build backend and frontend, install all the dependencies from the package.json files, copy the build folder from frontend to backend and start the server. Page will be then available in the browser at url http://localhost:8080/
+  - Some of the functionalities, such as reservation page loading or inquiry submission, might not be fully usable without your database connected.
 ---
 
 ## Usage

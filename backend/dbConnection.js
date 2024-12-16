@@ -42,11 +42,10 @@ function mockDatabaseConnection() {
  * }
  */
 async function connectToDatabase() {
-  if (true) {
+  if (process.env.MOCK_DB === true) {
     return mockDatabaseConnection();
   }
   
- /*
   if (!poolPromise) {
     poolPromise = sql
       .connect(dbConfig)
@@ -61,7 +60,6 @@ async function connectToDatabase() {
       });
   }
   return poolPromise;
- */
 }
 
 module.exports = {
